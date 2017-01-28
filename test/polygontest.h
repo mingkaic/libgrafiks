@@ -11,6 +11,13 @@ namespace mingtest
 
 struct polygon_test : public itester
 {
+    unsigned int randomColor (void)
+    {
+        unsigned int basecolor = std::rand() % 0x00f0f0f0;
+        basecolor += 0xff0f0f0f0f; // base color must be above 0x0f per color channel
+        return basecolor;
+    }
+
     size_t scene = 0;
     virtual void exec (std::vector<glib::ishaper*>& shapers, POINT& topcorner, size_t width, size_t height)
     {
@@ -31,10 +38,10 @@ struct polygon_test : public itester
                 size_t i = 0;
                 for (i = 0; i < pts.size() - 1; i++)
                 {
-                    glib::poly_model poly({origin, pts[i], pts[i+1]});
+                    glib::poly_model poly({origin, pts[i], pts[i+1]}, randomColor());
                     shaper->draw(&poly);
                 }
-                glib::poly_model poly({origin, pts.back(), pts.front()});
+                glib::poly_model poly({origin, pts.back(), pts.front()}, randomColor());
                 shaper->draw(&poly);
             }
             break;
@@ -53,8 +60,8 @@ struct polygon_test : public itester
                         POINT topright(edgex + x + sqrwidth, edgey + y);
                         POINT botleft(edgex + x, edgey + y + sqrheight);
                         POINT botright(edgex + x + sqrwidth, edgey + y + sqrheight);
-                        glib::poly_model toptri({topleft, topright, botright});
-                        glib::poly_model bottri({topleft, botleft, botright});
+                        glib::poly_model toptri({topleft, topright, botright}, randomColor());
+                        glib::poly_model bottri({topleft, botleft, botright}, randomColor());
                         shaper->draw(&toptri);
                         shaper->draw(&bottri);
                     }
@@ -77,8 +84,8 @@ struct polygon_test : public itester
                         POINT topright(dis(gen) + edgex + x + sqrwidth, dis(gen) + edgey + y);
                         POINT botleft(dis(gen) + edgex + x, dis(gen) + edgey + y + sqrheight);
                         POINT botright(dis(gen) + edgex + x + sqrwidth, dis(gen) + edgey + y + sqrheight);
-                        glib::poly_model toptri({topleft, topright, botright});
-                        glib::poly_model bottri({topleft, botleft, botright});
+                        glib::poly_model toptri({topleft, topright, botright}, randomColor());
+                        glib::poly_model bottri({topleft, botleft, botright}, randomColor());
                         shaper->draw(&toptri);
                         shaper->draw(&bottri);
                     }
@@ -94,7 +101,7 @@ struct polygon_test : public itester
                         POINT(edgex + dis(gen), edgey + dis(gen)),
                         POINT(edgex + dis(gen), edgey + dis(gen)),
                         POINT(edgex + dis(gen), edgey + dis(gen))
-                    });
+                    }, randomColor());
                     shaper->draw(&poly);
                 }
             }

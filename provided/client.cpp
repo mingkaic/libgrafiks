@@ -25,7 +25,6 @@ Client::Client(Drawable *drawable)
 
 void Client::nextPage() {
     static int pageNumber = 0;
-    pageNumber++;
     std::cout << "PageNumber " << pageNumber << std::endl;
     // line tests
     starburst_test st(125, 90);
@@ -79,6 +78,7 @@ void Client::nextPage() {
         draw_rect(400, 400, 700, 700, 0xff00ff40);
         drawable->updateScreen();
     }
+    pageNumber++;
 }
 
 void Client::test(itester& t, SHAPERS v1, SHAPERS v2, SHAPERS v3, SHAPERS v4)
