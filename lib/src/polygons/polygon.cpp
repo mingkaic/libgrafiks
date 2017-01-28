@@ -59,6 +59,12 @@ bool poly_model::cclockwise (void) const
     return sum < 0;
 }
 
+bool poly_model::isconvex (void) const
+{
+    // TODO: implement
+    return true;
+}
+
 ipolygoner::ipolygoner (DRAW drawable) : ishaper(drawable) {}
 
 void ipolygoner::draw (const imodel* model) const

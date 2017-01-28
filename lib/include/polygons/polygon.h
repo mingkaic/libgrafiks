@@ -25,6 +25,8 @@ struct poly_model : public imodel
 
     // determine if vertices are order counter clockwise relative to its index
     bool cclockwise (void) const;
+
+    bool isconvex (void) const;
 };
 
 struct ipolygoner : public ishaper
