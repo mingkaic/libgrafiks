@@ -12,9 +12,6 @@
 namespace glib
 {
 
-// coordinate transformation function
-#define COORD_TRANS std::function<void(double&,double&)>
-
 struct line_model : public imodel
 {
     line_model (POINT a, POINT b);

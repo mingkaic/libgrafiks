@@ -61,7 +61,31 @@ bool poly_model::cclockwise (void) const
 
 bool poly_model::isconvex (void) const
 {
-    // TODO: implement
+	std::vector<double> thetas;
+	POINT pt = vertices_.back();
+    for (auto it = vertices_.begin(); it != vertices_.end(); it++)
+	{
+		thetas.push_back(std::tan(slope(pt, *it)));
+		pt = *it;
+	}
+
+	double theta = 0;
+	double phi = thetas.back();
+	for (auto it = thetas.begin(); it != thetas.end(); it++)
+	{
+		theta += std::abs(phi - *it);
+	}
+
+	// total angles in a convex polygon approximates to pi * (vertices_.size() - 2)
+	const double expectedtheta = M_PI * (vertices_.size() - 2);
+
+	// approximation with error bound
+	double err = std::abs(theta - expectedtheta);
+	if (err > M_PI/36) // within 5 degrees
+	{
+		return false;
+	}
+
     return true;
 }
 
