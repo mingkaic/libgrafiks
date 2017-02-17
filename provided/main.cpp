@@ -2,6 +2,8 @@
 #include "client.h"
 #include <QApplication>
 
+#include "parse/simpreader.h"
+
 
 // you can rewrite main(.cpp/.h) and client(.cpp/.h) and add more files.
 // Leave renderarea(.cpp/.h) and window(.cpp/.h) unchanged.
@@ -13,6 +15,8 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);   // because it's a Qt application
+
+    glib::simp_reader reader("test/simp/cube.simp");
 
     Window361 window;               // make and show the window--size is already correct
     window.show();
