@@ -1,6 +1,6 @@
 #include "polygons/convexfiller.h"
 #include "lines/bresenham.h"
-#include <iostream>
+
 #ifdef __GLIB_CONVEXFILL__
 
 namespace glib
@@ -10,11 +10,11 @@ convex_filler::convex_filler (DRAW draw) : ipolygoner(draw) {}
 
 void convex_filler::draw (const poly_model* model) const
 {
-    std::vector<POINT> vertices = model->ysortindices();
-    POINT top = vertices.front();
-    POINT bot = vertices.back();
-    size_t topy = top.second;
-    size_t boty = bot.second;
+    std::vector<point> vertices = model->ysortindices();
+    point top = vertices.front();
+    point bot = vertices.back();
+    size_t topy = top.y;
+    size_t boty = bot.y;
     size_t dy = topy - boty + 1;
     std::vector<size_t> lxs(dy, -1);
     std::vector<size_t> rxs(dy, 0);
@@ -31,24 +31,24 @@ void convex_filler::draw (const poly_model* model) const
     });
 
     // populate lxs and rxs
-    POINT last = model->get_v(0);
+    point last = model->get_v(0);
     size_t nvs = vertices.size();
     for (size_t i = 1; i < nvs; i++)
     {
-        POINT pt = model->get_v(i);
+        point pt = model->get_v(i);
         line_model line(last, pt);
         liner.draw(&line);
         last = pt;
 
         // we avoid discontinuations between edges
-        // by explicitly entering vertices x coordinates
-        size_t x = pt.first;
-        size_t y = pt.second;
+        // by explicitly entering vertices x coordinate
+        size_t x = pt.x;
+        size_t y = pt.y;
         size_t yidx = topy - y;
         if (lxs[yidx] > x) lxs[yidx] = x;
         if (rxs[yidx] < x) rxs[yidx] = x;
     }
-    POINT pt = model->get_v(0);
+    point pt = model->get_v(0);
     line_model line(last, pt);
     liner.draw(&line);
     for (size_t y = 0; y < dy; y++)
@@ -62,4 +62,4 @@ void convex_filler::draw (const poly_model* model) const
 
 }
 
-#endif
+#endif /* __GLIB_CONVEXFILL__ */

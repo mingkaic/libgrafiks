@@ -15,9 +15,10 @@ set(CMAKE_CXX_STANDARD 11)
 
 file(GLOB_RECURSE MAIN_SRC provided/*.cpp)
 file(GLOB_RECURSE LIB_SRC lib/src/*.cpp)
+file(GLOB_RECURSE TEST_SRC test/**/*.cpp)
 
 include_directories(${Qt5Widgets_INCLUDE_DIRS} provided lib/include test)
 
 set(MAINEXEC MainPage)
-add_executable(${MAINEXEC} ${MAIN_SRC} ${LIB_SRC})
+add_executable(${MAINEXEC} ${MAIN_SRC} ${LIB_SRC} ${TEST_SRC})
 target_link_libraries(${MAINEXEC} Qt5::Widgets Qt5::Core Qt5::Gui)

@@ -13,23 +13,18 @@
 namespace glib
 {
 
-class imodel
+class shape_model
 {
 public:
     unsigned int color_ = 0xffffffff;
 
-    void set_v (POINT pt)
-    {
-        vertices_.push_back(pt);
-    }
-
-    POINT get_v (size_t idx) const
-    {
-        return vertices_[idx];
-    }
+	point get_v (size_t idx) const
+	{
+		return vertices_[idx];
+	}
 
 protected:
-    std::vector<POINT> vertices_;
+    std::vector<point> vertices_;
 };
 
 }

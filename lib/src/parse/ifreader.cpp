@@ -9,43 +9,54 @@
 namespace glib
 {
 
-bool ifreader::lookahead (std::istream& s, std::list<char>& q, std::string match, bool jmp) const {
+bool ifreader::lookahead (std::istream& s, std::list<char>& q, std::string match, bool jmp) const
+{
 	std::unordered_set<char> whitespace = whiteset();
 	bool spaced = false;
 	std::string lexeme = "";
 	size_t nmatch = match.length();
 	auto it = q.begin();
-	for (size_t i = 0; i < nmatch; i++) {
+	for (size_t i = 0; i < nmatch; i++)
+	{
 		char c;
-		if (it != q.end()) {
+		if (it != q.end())
+		{
 			c = *it;
 		}
-		else {
+		else
+		{
 			c = s.get();
 			q.push_back(c);
 		}
-		if (jmp && !spaced && whitespace.end() == whitespace.find(c)) {
+		if (jmp && !spaced && whitespace.end() == whitespace.find(c))
+		{
 			q.pop_front();
 		}
-		else {
+		else
+		{
 			it++;
 		}
 		lexeme.push_back(c);
 	}
-	if (0 == lexeme.compare(match)) {
+	if (0 == lexeme.compare(match))
+	{
 		return true;
 	}
 	return false;
 }
 
-std::string ifreader::find_first_of (std::istream& s, std::list<char>& q, std::unordered_set<char> end) const {
+std::string ifreader::find_first_of (std::istream& s, std::list<char>& q, std::unordered_set<char> end) const
+{
 	std::string accum = "";
 	char c;
-	do {
-		if (q.empty()) {
+	do
+	{
+		if (q.empty())
+		{
 			c = s.get();
 		}
-		else {
+		else
+		{
 			c = q.front();
 			q.pop_front();
 		}
@@ -55,13 +66,43 @@ std::string ifreader::find_first_of (std::istream& s, std::list<char>& q, std::u
 	return accum;
 }
 
-std::string ifreader::delimited (std::istream& s, std::list<char>& q, char delim, size_t ndelims) const {
+std::string ifreader::delimited (std::istream& s, std::list<char>& q, char delim, size_t ndelims) const
+{
 	std::unordered_set<char> whitespace = whiteset();
 	std::string accum = "";
-	for (size_t i = 0; i < ndelims; i++) {
+	for (size_t i = 0; i < ndelims; i++)
+	{
 		accum += find_first_of(s, q, {delim});
 	}
 	accum += find_first_of(s, q, whitespace);
+	return accum;
+}
+
+std::vector<std::string> ifreader::split (std::string s, std::string delim) const
+{
+	size_t ns = s.size();
+	std::vector<std::string> accum;
+	size_t next;
+	for (next = 0; next < ns; next++)
+	{
+		size_t prev = next;
+		next = s.find_first_of(delim, next);
+		accum.push_back(s.substr(prev, next-1));
+	}
+	accum.push_back(s.substr(next, ns));
+	return accum;
+}
+
+std::string ifreader::trim (std::string s, std::unordered_set<char> trash) const
+{
+	std::string accum = "";
+	for (char c : s)
+	{
+		if (trash.end() == trash.find(c))
+		{
+			accum.push_back(c);
+		}
+	}
 	return accum;
 }
 

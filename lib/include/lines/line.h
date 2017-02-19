@@ -5,6 +5,7 @@
 //
 
 #include "shaper.h"
+#include "models/transformation.h"
 
 #ifndef __GLIB_LINE__
 #define __GLIB_LINE__
@@ -12,10 +13,10 @@
 namespace glib
 {
 
-struct line_model : public imodel
+struct line_model : public shape_model
 {
-    line_model (POINT a, POINT b);
-    line_model (POINT a, POINT b, unsigned int color);
+    line_model (point a, point b);
+    line_model (point a, point b, unsigned int color);
 
     double dx (void) const;
 
@@ -27,13 +28,13 @@ class iliner : public ishaper
 public:
     iliner (DRAW drawable);
 
-    virtual void draw (const imodel* model) const;
+    virtual void draw (const shape_model* model) const;
     
     virtual void draw (const line_model* model) const = 0;
 
 protected:
-    // returns a commutative function mapping octant 1 coordinate to real coordinate
-    const coord_transform& octantize (const line_model& model) const;
+    // returns the degree of rotation to ensure octant 1 alignment
+    const transformation& octantize (const line_model& model) const;
 };
 
 }

@@ -4,22 +4,19 @@
 #ifndef PARALLELOTEST
 #define PARALLELOTEST
 
-namespace mingtest
-{
-
 struct paralleogram_test : public itester
 {
     paralleogram_test (void) {}
     paralleogram_test (size_t nparalells) : nparallel_(nparalells) {}
 
-    virtual void exec (std::vector<glib::ishaper*>& shapers, POINT& topcorner, size_t width, size_t height)
+    virtual void exec (std::vector<glib::ishaper*>& shapers, const glib::point& topcorner, size_t width, size_t height)
     {
-        double x = topcorner.first;
-        double y = topcorner.second;
+        double x = topcorner.x;
+        double y = topcorner.y;
         for (size_t i = 0; i < nparallel_; i++)
         {
-            glib::line_model line0(POINT(x+20, y+80+i), POINT(x+150, y+150+i));
-            glib::line_model line1(POINT(x+160+i, y+270), POINT(x+240+i, y+40));
+            glib::line_model line0(glib::point(x+20, y+80+i), glib::point(x+150, y+150+i));
+            glib::line_model line1(glib::point(x+160+i, y+270), glib::point(x+240+i, y+40));
             shapers[i % shapers.size()]->draw(&line0);
             shapers[i % shapers.size()]->draw(&line1);
         }
@@ -28,7 +25,5 @@ struct paralleogram_test : public itester
 private:
     size_t nparallel_ = 50;
 };
-
-}
 
 #endif /* PARALLELOTEST */

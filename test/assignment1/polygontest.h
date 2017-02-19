@@ -6,9 +6,6 @@
 #ifndef POLYTEST
 #define POLYTEST
 
-namespace mingtest
-{
-
 struct polygon_test : public itester
 {
     unsigned int randomColor (void)
@@ -19,12 +16,12 @@ struct polygon_test : public itester
     }
 
     size_t scene = 0;
-    virtual void exec (std::vector<glib::ishaper*>& shapers, POINT& topcorner, size_t width, size_t height)
+    virtual void exec (std::vector<glib::ishaper*>& shapers, const glib::point& topcorner, size_t width, size_t height)
     {
         std::random_device rd;
         std::mt19937 gen(rd());
-        size_t edgex = topcorner.first;
-        size_t edgey = topcorner.second;
+        size_t edgex = topcorner.x;
+        size_t edgey = topcorner.y;
         glib::ishaper* shaper = shapers[0];
 
         switch (scene)
@@ -33,8 +30,8 @@ struct polygon_test : public itester
             {
                 size_t centerx = edgex + width / 2;
                 size_t centery = edgey + height / 2;
-                POINT origin(centerx, centery);
-                std::vector<POINT> pts = starburst_vertices(centerx, centery, 125, 90);
+                glib::point origin(centerx, centery);
+                std::vector<glib::point> pts = starburst_vertices(centerx, centery, 125, 90);
                 size_t i = 0;
                 for (i = 0; i < pts.size() - 1; i++)
                 {
@@ -56,10 +53,10 @@ struct polygon_test : public itester
                     for (size_t j = 0; j < 9; j++)
                     {
                         double y = margin * (j+1) + sqrheight * j;
-                        POINT topleft(edgex + x, edgey + y);
-                        POINT topright(edgex + x + sqrwidth, edgey + y);
-                        POINT botleft(edgex + x, edgey + y + sqrheight);
-                        POINT botright(edgex + x + sqrwidth, edgey + y + sqrheight);
+                        glib::point topleft(edgex + x, edgey + y);
+                        glib::point topright(edgex + x + sqrwidth, edgey + y);
+                        glib::point botleft(edgex + x, edgey + y + sqrheight);
+                        glib::point botright(edgex + x + sqrwidth, edgey + y + sqrheight);
                         glib::poly_model toptri({topleft, topright, botright}, randomColor());
                         glib::poly_model bottri({topleft, botleft, botright}, randomColor());
                         shaper->draw(&toptri);
@@ -80,10 +77,10 @@ struct polygon_test : public itester
                     for (size_t j = 0; j < 9; ++j)
                     {
                         double y = margin * (j+1) + sqrheight * j;
-                        POINT topleft(dis(gen) + edgex + x, dis(gen) + edgey + y);
-                        POINT topright(dis(gen) + edgex + x + sqrwidth, dis(gen) + edgey + y);
-                        POINT botleft(dis(gen) + edgex + x, dis(gen) + edgey + y + sqrheight);
-                        POINT botright(dis(gen) + edgex + x + sqrwidth, dis(gen) + edgey + y + sqrheight);
+                        glib::point topleft(dis(gen) + edgex + x, dis(gen) + edgey + y);
+                        glib::point topright(dis(gen) + edgex + x + sqrwidth, dis(gen) + edgey + y);
+                        glib::point botleft(dis(gen) + edgex + x, dis(gen) + edgey + y + sqrheight);
+                        glib::point botright(dis(gen) + edgex + x + sqrwidth, dis(gen) + edgey + y + sqrheight);
                         glib::poly_model toptri({topleft, topright, botright}, randomColor());
                         glib::poly_model bottri({topleft, botleft, botright}, randomColor());
                         shaper->draw(&toptri);
@@ -98,9 +95,9 @@ struct polygon_test : public itester
                 for (size_t i = 0; i < 20; ++i)
                 {
                     glib::poly_model poly({
-                        POINT(edgex + dis(gen), edgey + dis(gen)),
-                        POINT(edgex + dis(gen), edgey + dis(gen)),
-                        POINT(edgex + dis(gen), edgey + dis(gen))
+                        glib::point(edgex + dis(gen), edgey + dis(gen)),
+                        glib::point(edgex + dis(gen), edgey + dis(gen)),
+                        glib::point(edgex + dis(gen), edgey + dis(gen))
                     }, randomColor());
                     shaper->draw(&poly);
                 }
@@ -110,7 +107,5 @@ struct polygon_test : public itester
         scene++;
     }
 };
-
-}
 
 #endif /* POLYTEST */

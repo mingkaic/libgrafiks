@@ -5,7 +5,7 @@
 //
 
 #include <cmath>
-#include "model.h"
+#include "lib/include/models/model.h"
 #include "gutils.h"
 
 #ifndef __GLIB_SHAPE__
@@ -19,10 +19,16 @@ class ishaper
 public:
     ishaper (DRAW drawable) : drawable_(drawable) {}
 
-    virtual void draw (const imodel* model) const = 0;
+    virtual void draw (const shape_model* model) const = 0;
 
 protected:
     DRAW drawable_;
+};
+
+// rendering wrapper object
+struct shape_render {
+	std::shared_ptr<ishaper> shaper_ = nullptr;
+	shape_model* model_ = nullptr;
 };
 
 }

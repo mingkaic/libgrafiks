@@ -9,14 +9,17 @@ bresen_liner::bresen_liner (DRAW draw) : iliner(draw) {}
 
 void bresen_liner::draw (const line_model* model) const
 {
-    const coord_transform& transform = this->octantize(*model);
+	const transformation& forward = this->octantize(*model);
+	transformation backward = forward.transpose();
+	double dummyz = 1;
+
     double dx = model->dx();
     double dy = model->dy();
-    transform.forward(dx, dy); // transform to oct1
+    forward.mul(dx, dy, dummyz); // transform to oct1
 
-    POINT origin = model->get_v(0);
-    double centerx = origin.first;
-    double centery = origin.second;
+    point origin = model->get_v(0);
+    double centerx = origin.x;
+    double centery = origin.y;
     double twodx = 2*dx;
     double twody = 2*dy;
     double err = twody - dx;
@@ -35,7 +38,7 @@ void bresen_liner::draw (const line_model* model) const
             err += twody;
         }
         double xi = x, yi = y;
-        transform.backward(xi, yi);
+        backward.mul(xi, yi, dummyz);
         this->drawable_(centerx + xi, centery + yi, model->color_);
     }
 }

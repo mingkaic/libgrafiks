@@ -4,8 +4,11 @@
 
 #include <list>
 #include <string>
+#include <vector>
 #include <fstream>
 #include <unordered_set>
+
+#include "gutils.h"
 
 #ifndef LIBGRAFIKS_IFREADER_HPP
 #define LIBGRAFIKS_IFREADER_HPP
@@ -32,7 +35,12 @@ protected:
 
 	virtual void tokenize (std::istream& s) = 0;
 
-	virtual void parse (void) = 0;
+	// USEFUL HELPER FUNCTIONS FOR PARSING
+	std::vector<std::string> split (std::string s, std::string delim) const;
+
+	std::string trim (std::string s, std::unordered_set<char> trash) const;
+
+	virtual void parse (DRAW drawer) = 0;
 };
 
 } // namespace glib

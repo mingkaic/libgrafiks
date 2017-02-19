@@ -31,15 +31,18 @@ aalias_liner::aalias_liner (DRAW draw) : iliner(draw) {}
 
 void aalias_liner::draw (const line_model* model) const
 {
-    const coord_transform& transform = this->octantize(*model);
+	const transformation& forward = this->octantize(*model);
+	transformation backward = forward.transpose();
+    double dummyz = 1;
+
     double dx = model->dx();
     double dy = model->dy();
-    transform.forward(dx, dy); // transform to oct1
+    forward.mul(dx, dy, dummyz); // transform to oct1
     double m = dy / dx;
 
-    POINT origin = model->get_v(0);
-    double centerx = origin.first;
-    double centery = origin.second;
+    point origin = model->get_v(0);
+    double centerx = origin.x;
+    double centery = origin.y;
     // we need a representation of the line
     // t is the tangent slope at every point along the line
     // dist from (x, y) to line center is abs(y_int - y_model) * cos(arctan(m))
@@ -66,9 +69,9 @@ void aalias_liner::draw (const line_model* model) const
         double dc0 = y0 - y;
         double dc1 = dc0 + 1; // top pixel distance from center
         double dc2 = dc0 - 1; // bottom pixel distance from center
-        transform.backward(x0, y0);
-        transform.backward(x1, y1);
-        transform.backward(x2, y2);
+        backward.mul(x0, y0, dummyz);
+        backward.mul(x1, y1, dummyz);
+        backward.mul(x2, y2, dummyz);
         this->drawable_(centerx + x0, centery + y0, 
             opacity_transform(model->color_, intensity(std::abs(dc0) * t)));
         this->drawable_(centerx + x1, centery + y1, 
@@ -88,7 +91,7 @@ void aalias_liner::draw (const line_model* model) const
             y3 -= 2;
             color = opacity_transform(model->color_, intensity(std::abs(dc0 - 2) * t));
         }
-        transform.backward(x3, y3);
+        backward.mul(x3, y3, dummyz);
         this->drawable_(centerx + x3, centery + y3, color);
 
         y += m;

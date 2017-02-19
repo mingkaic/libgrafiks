@@ -1,38 +1,38 @@
 #include "gutils.h"
-#include <iostream>
+
 #ifdef __GLIB_UTIL__
 
 namespace glib
 {
 
-void inorder (POINT& pt1, POINT& pt2)
+void inorder (point& pt1, point& pt2)
 {
-    if (pt1.first > pt2.first)
+    if (pt1.x > pt2.x)
     {
-        POINT buffer = std::move(pt1);
+        point buffer = std::move(pt1);
         pt1 = std::move(pt2);
         pt2 = std::move(buffer);
     }
 }
 
-double slope (POINT pt1, POINT pt2)
+double slope (point pt1, point pt2)
 {
     inorder(pt1, pt2);
-    if (pt2.first - pt1.first == 0)
+    if (pt2.x - pt1.x == 0)
     {
         return std::numeric_limits<double>::max(); // return yuge value
     }
-    return (pt2.second - pt1.second) / (pt2.first - pt1.first);
+    return (pt2.y - pt1.y) / (pt2.x - pt1.x);
 }
 
-double slope_tangent (POINT pt1, POINT pt2)
+double slope_tangent (point pt1, point pt2)
 {
     inorder(pt1, pt2);
-    if (pt2.second - pt1.second == 0)
+    if (pt2.y - pt1.y == 0)
     {
         return std::numeric_limits<double>::max(); // return yuge value
     }
-    return (pt2.first - pt1.first) / (pt2.second - pt1.second);
+    return (pt2.x - pt1.x) / (pt2.y - pt1.y);
 }
 
 void rgb_unpack (unsigned int color, uint8_t& red, uint8_t& green, uint8_t& blue)
@@ -67,22 +67,6 @@ unsigned int higher_intensity (unsigned int c1, unsigned int c2)
         return c2;
     }
     return c1;
-}
-
-void coord_transform::forward (double& x, double& y) const
-{
-    double outx = x * data_[0][0] + y * data_[0][1];
-    double outy = x * data_[1][0] + y * data_[1][1];
-    x = outx;
-    y = outy;
-}
-
-void coord_transform::backward (double& x, double& y) const
-{
-    double outx = x * data_[0][0] + y * data_[1][0];
-    double outy = x * data_[0][1] + y * data_[1][1];
-    x = outx;
-    y = outy;
 }
 
 }

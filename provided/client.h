@@ -4,23 +4,23 @@
 #include "drawable.h"
 #include "pageturner.h"
 #include "panel.h"
-
-using namespace mingtest;
-#define SHAPERS std::vector<glib::ishaper*>
+#include "parse/simpreader.h"
+#include "assignment1/a1test.h"
 
 class Client : public PageTurner
 {
 public:
     Client(Drawable *drawable);
+    ~Client() {
+    	delete test;
+    }
     void nextPage();
 
 private:
-    std::vector<panel> panels;
-    Drawable *drawable;
+    Drawable* drawable;
+	tester* test;
 
-    void draw_rect(int x1, int y1, int x2, int y2, unsigned int color);
-    void draw_panel(panel& p, unsigned int color);
-    void test(itester& t, SHAPERS v1, SHAPERS v2, SHAPERS s3, SHAPERS v4);
+	void draw_rect(int x1, int y1, int x2, int y2, unsigned int color);
 };
 
 #endif // CLIENT_H
