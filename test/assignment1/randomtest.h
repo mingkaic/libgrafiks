@@ -20,7 +20,13 @@ struct random_test : public itester
             size_t y1 = std::rand() % 300;
             size_t x2 = std::rand() % 300;
             size_t y2 = std::rand() % 300;
-            glib::line_model line(glib::point(x+x1, y+y1), glib::point(x+x2, y+y2), basecolor);
+
+			glib::point p1(x+x1, y+y1);
+			glib::point p2(x+x2, y+y2);
+			p1.basecolor = basecolor;
+			p2.basecolor = basecolor;
+
+            glib::line_model line(p1, p2);
             shapers[i % shapers.size()]->draw(&line);
         }
     }

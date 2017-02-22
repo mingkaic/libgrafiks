@@ -21,8 +21,13 @@ public:
 		std::memcpy(data_, data, sizeof(double) * N * N);
 	}
 
+	sqr_mat (const sqr_mat<N>& other)
+	{
+		std::memcpy(data_, other.data_, sizeof(double) * N * N);
+	}
+
 	// this * other
-	sqr_mat<N> mul (const sqr_mat<N>& other) const;
+	sqr_mat<N> matmul (const sqr_mat<N>& other) const;
 
 	sqr_mat<N> inverse (void) const;
 

@@ -37,12 +37,21 @@ void aalias_liner::draw (const line_model* model) const
 
     double dx = model->dx();
     double dy = model->dy();
-    forward.mul(dx, dy, dummyz); // transform to oct1
+	double dz = model->dz();
+	color_grad dc = model->dc();
+
+	forward.mul(dx, dy, dummyz); // transform to oct1
+
+	double mz = dz / dx;
+	color_grad mc = dc / dx;
+
     double m = dy / dx;
 
     point origin = model->get_v(0);
     double centerx = origin.x;
     double centery = origin.y;
+	double centerz = origin.z;
+	color_grad centercolor = origin.basecolor;
     // we need a representation of the line
     // t is the tangent slope at every point along the line
     // dist from (x, y) to line center is abs(y_int - y_model) * cos(arctan(m))
@@ -72,29 +81,33 @@ void aalias_liner::draw (const line_model* model) const
         backward.mul(x0, y0, dummyz);
         backward.mul(x1, y1, dummyz);
         backward.mul(x2, y2, dummyz);
-        this->drawable_(centerx + x0, centery + y0, 
-            opacity_transform(model->color_, intensity(std::abs(dc0) * t)));
-        this->drawable_(centerx + x1, centery + y1, 
-            opacity_transform(model->color_, intensity(std::abs(dc1) * t)));
-        this->drawable_(centerx + x2, centery + y2, 
-            opacity_transform(model->color_, intensity(std::abs(dc2) * t)));
-        unsigned int color;
+        this->drawable_(centerx + x0, centery + y0, centerz,
+            opacity_transform(centercolor, intensity(std::abs(dc0) * t)));
+        this->drawable_(centerx + x1, centery + y1, centerz,
+            opacity_transform(centercolor, intensity(std::abs(dc1) * t)));
+        this->drawable_(centerx + x2, centery + y2, centerz,
+            opacity_transform(centercolor, intensity(std::abs(dc2) * t)));
+        double opacity;
         // look 2 pixels above center if pixel center is below model center
         // above pixels (that are not pixel centers) are closer to mode centers
         if (dc0 < 0) 
         {
             y3 += 2;
-            color = opacity_transform(model->color_, intensity(std::abs(dc0 + 2) * t));
+			opacity = intensity(std::abs(dc0 + 2) * t);
         }
         else
         {
             y3 -= 2;
-            color = opacity_transform(model->color_, intensity(std::abs(dc0 - 2) * t));
+			opacity = intensity(std::abs(dc0 - 2) * t);
         }
         backward.mul(x3, y3, dummyz);
-        this->drawable_(centerx + x3, centery + y3, color);
+        this->drawable_(centerx + x3, centery + y3, centerz,
+            opacity_transform(centercolor, opacity));
 
         y += m;
+        // todo: improve extra dimensional interpolation
+		centerz += mz; // z is interpolated on a vertical strip (should be rounded wrt to the line perpendicular)
+		centercolor += mc; // color is interpolated on a vertical strip (relative to its octant 1 equivalent)
     }
 }
 

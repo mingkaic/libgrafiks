@@ -7,22 +7,8 @@ namespace glib
 
 poly_model::poly_model (void) {}
 
-poly_model::poly_model (unsigned int color)
-{
-    this->color_ = color;
-}
-
 poly_model::poly_model (std::vector<point> vertices)
 {
-    for (point pt : vertices)
-    {
-        set_v(pt);
-    }
-}
-
-poly_model::poly_model (std::vector<point> vertices, unsigned int color)
-{
-    this->color_ = color;
     for (point pt : vertices)
     {
         set_v(pt);

@@ -31,7 +31,7 @@ protected:
 	std::string find_first_of (std::istream& s, std::list<char>& q, std::unordered_set<char> end) const;
 
 	// return desired delimiter separated string in the format ...delim...delim...whitespace
-	std::string delimited (std::istream& s, std::list<char>& q, char delim, size_t ndelims) const;
+	std::string delimited (std::istream& s, std::list<char>& q, std::unordered_set<char> delims, size_t ndelims) const;
 
 	virtual void tokenize (std::istream& s) = 0;
 

@@ -68,7 +68,7 @@ rotate::rotate (char axis, double theta, THETA_UNIT unit)
 	assert(idx < 3);
 	if (unit == DEGREE)
 	{
-		theta = M_PI * 180 / theta;
+		theta = M_PI * theta / 180;
 	}
 	double c = std::cos(theta);
 	double s = std::sin(theta);

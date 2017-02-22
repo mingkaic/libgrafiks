@@ -16,12 +16,22 @@ void dda_liner::draw (const line_model* model) const
 
     double dx = model->dx();
     double dy = model->dy();
-    forward.mul(dx, dy, dummyz); // transform to oct1
+    double dz = model->dz();
+    color_grad dc = model->dc();
+
+	forward.mul(dx, dy, dummyz); // transform to oct1
+
+	double mz = dz / dx;
+	color_grad mc = dc / dx;
+
     double m = dy / dx;
 
     point origin = model->get_v(0);
     double centerx = origin.x;
     double centery = origin.y;
+	double centerz = origin.z;
+	color_grad centercolor = origin.basecolor;
+
     double diff = centerx - std::round(centerx);
     centerx = centerx - diff; // round x
     centery += diff * m; // move y to match rounded x
@@ -31,8 +41,10 @@ void dda_liner::draw (const line_model* model) const
     {
         double xi = x, yi = std::round(y);
         backward.mul(xi, yi, dummyz);
-        this->drawable_(centerx + xi, centery + yi, model->color_);
+        this->drawable_(centerx + xi, centery + yi, centerz, centercolor);
         y += m;
+		centerz += mz;
+		centercolor += mc;
     }
 }
 

@@ -8,7 +8,7 @@ namespace glib
 {
 
 template <size_t N>
-sqr_mat<N> sqr_mat<N>::mul (const sqr_mat<N>& other) const
+sqr_mat<N> sqr_mat<N>::matmul (const sqr_mat<N>& other) const
 {
 	double res[N][N];
 	for (size_t y = 0; y < N; y++)

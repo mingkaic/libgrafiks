@@ -5,7 +5,7 @@
 #define CANVASH 750
 
 Client::Client(Drawable *drawable) :
-	test(new a1test(CANVASW, CANVASH)),
+	test(new a2test(CANVASW, CANVASH)),
 	drawable(drawable) {}
 
 #define BG_COLOR 0xffffffff
@@ -14,15 +14,6 @@ Client::Client(Drawable *drawable) :
 void Client::nextPage() {
     static int pageNumber = 0;
     std::cout << "PageNumber " << pageNumber << std::endl;
-
-//	DRAW draw = [this](int x, int y, unsigned int color)
-//	{
-//		unsigned int oldColor = drawable->getPixel(x, y);
-//		// take shapes of highest intensity on top
-//		color = glib::higher_intensity(oldColor, color);
-//		drawable->setPixel(x, y, color);
-//	};
-//	glib::simp_reader reader("test/simp/cube.simp", draw);
 
 	draw_rect(0, 0, CANVASW, CANVASH, BG_COLOR);
 	test->run(pageNumber, drawable,

@@ -16,9 +16,7 @@ namespace glib
 struct poly_model : public shape_model
 {
     poly_model (void);
-    poly_model (unsigned int color);
     poly_model (std::vector<point> vertices);
-    poly_model (std::vector<point> vertices, unsigned int color);
 
     void set_v (point pt)
     {

@@ -26,6 +26,16 @@ public:
             botright_.y - topleft_.y);
     }
 
+    size_t get_width (void) const
+	{
+		return botright_.x - topleft_.x;
+	}
+
+	size_t get_height (void) const
+	{
+		return botright_.y - topleft_.y;
+	}
+
     std::pair<glib::point, glib::point> get_pts (void) const { return std::pair<glib::point, glib::point>(topleft_, botright_); }
 
 private:

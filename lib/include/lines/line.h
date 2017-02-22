@@ -16,11 +16,14 @@ namespace glib
 struct line_model : public shape_model
 {
     line_model (point a, point b);
-    line_model (point a, point b, unsigned int color);
 
     double dx (void) const;
 
     double dy (void) const;
+
+    double dz (void) const;
+
+	color_grad dc (void) const;
 };
 
 class iliner : public ishaper

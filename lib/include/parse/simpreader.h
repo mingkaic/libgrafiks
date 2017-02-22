@@ -2,6 +2,7 @@
 // Created by Mingkai Chen on 2017-02-06.
 //
 
+#include <stack>
 #include <queue>
 #include <unordered_map>
 
@@ -20,48 +21,49 @@
 namespace glib
 {
 
-#define RUN_INSTR std::function<void(INSTRUCTION&)>
-
-// todo: upgrade to variant<shape_model, transformation>
-struct INSTRUCTION
-{
-	INSTRUCTION (transformation* t) :
-		trans_(t), ismodel_(false) {}
-	INSTRUCTION (shape_model* model, std::shared_ptr<ishaper>& shape) :
-		ismodel_(true)
-	{
-		render_.shaper_ = shape;
-		render_.model_ = model;
-	}
-
-	bool ismodel_;
-	shape_render render_;
-	transformation* trans_ = nullptr;
-};
+#define SCREEN_DIM 100
 
 class simp_reader : public ifreader
 {
 public:
-	simp_reader (std::string path, DRAW drawer)
+	simp_reader (std::string path, DRAW drawer);
+	~simp_reader (void);
+
+	void execute (point centeryon, size_t width, size_t height);
+
+protected:
+#define RUN_INSTR std::function<void(INSTRUCTION&)>
+
+	// todo: upgrade to variant<shape_model, transformation>
+	struct INSTRUCTION
 	{
-		size_t nameidx = path.find_last_of('/');
-		if (path.npos != nameidx) {
-			directory_ = path.substr(0, nameidx);
+		INSTRUCTION (void) :
+			trans_(new transformation()), ismodel_(false) {}
+		INSTRUCTION (transformation* t, size_t stackidx = 0) :
+			trans_(t), ismodel_(false), stack_(stackidx) {}
+		INSTRUCTION (shape_model* model, std::shared_ptr<ishaper>& shape, size_t stackidx = 0) :
+			ismodel_(true), stack_(stackidx)
+		{
+			render_.shaper_ = shape;
+			render_.model_ = model;
 		}
-		std::ifstream fs(path);
-		tokenize(fs);
-		parse(drawer);
-		fs.close();
-	}
+
+		bool ismodel_;
+		shape_render render_;
+		transformation* trans_ = nullptr;
+		simp_reader* owner_ = nullptr;
+
+		size_t stack_ = 0;
+	};
 
 	void get_instructions (RUN_INSTR run)
 	{
 		for (INSTRUCTION i : instructions_) {
+			i.owner_ = this;
 			run(i);
 		}
 	}
 
-protected:
 	virtual std::unordered_set<char> whiteset (void) const
 	{
 		return {' ', '\n', '\t', '\r'};
@@ -82,6 +84,7 @@ private:
 	std::string directory_ = "";
 	std::queue<LEX_TOK> lextok_;
 	std::list<INSTRUCTION> instructions_;
+	std::vector<simp_reader*> subreaders_;
 };
 
 }

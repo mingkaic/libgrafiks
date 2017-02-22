@@ -1,0 +1,78 @@
+# far back boxes
+# top row
+{
+   # scale, translate back
+   translate -0.5, -0.5, 0
+   rotate Z 45
+   scale 60, 60, 1
+   translate -90, -90, 160
+   file "z0_face"
+}
+
+{
+   # scale, translate back
+   scale 60, 60, 1
+   translate -30, -90, 150
+   file "z0_face"
+}
+
+# {
+#     # scale, translate back
+#     translate -0.5, -0.5, 0
+#     rotate Z 45
+#     scale 60, 60, 1
+#     translate 30, -90, 140
+# 	file "z0_face"
+# }
+
+# mid boxes
+# mid row
+# {
+#     # scale, translate back
+#     scale 60, 60, 1
+#     translate -90, -30, 100
+# 	file "z0_face"
+# }
+
+# {
+#     # scale, translate back
+#     translate -0.5, -0.5, 0
+#     rotate Z 45
+#     scale 60, 60, 1
+#     translate -30, -30, 90
+# 	file "z0_face"
+# }
+
+# {
+#     # scale, translate back
+#     scale 60, 60, 1
+#     translate 30, -30, 80
+# 	file "z0_face"
+# }
+#
+# # front boxes
+# # bottom row
+# {
+#     # scale, translate
+#     translate -0.5, -0.5, 0
+#     rotate Z 45
+#     scale 60, 60, 1
+#     translate -90, 30, 40
+# 	file "z0_face"
+# }
+#
+# {
+#     # scale, translate
+#     scale 60, 60, 1
+#     translate -30, 30, 30
+# 	file "z0_face"
+# }
+#
+# {
+#     # scale, translate
+#     translate -0.5, -0.5, 0
+#     rotate Z 45
+#     scale 60, 60, 1
+#     translate 30, 30, 20
+# 	file "z0_face"
+# }

@@ -11,36 +11,33 @@ namespace glib
 
 bool ifreader::lookahead (std::istream& s, std::list<char>& q, std::string match, bool jmp) const
 {
-	std::unordered_set<char> whitespace = whiteset();
-	bool spaced = false;
-	std::string lexeme = "";
 	size_t nmatch = match.length();
+	while (s.good() && q.size() < nmatch)
+	{
+		q.push_back(s.get());
+	}
+
+	std::unordered_set<char> whitespace = whiteset();
+	std::string lexeme = "";
 	auto it = q.begin();
+	auto spaceit = q.end();
 	for (size_t i = 0; i < nmatch; i++)
 	{
-		char c;
-		if (it != q.end())
+		char c = *it;
+		if (q.end() == spaceit && whitespace.end() != whitespace.find(c))
 		{
-			c = *it;
-		}
-		else
-		{
-			c = s.get();
-			q.push_back(c);
-		}
-		if (jmp && !spaced && whitespace.end() == whitespace.find(c))
-		{
-			q.pop_front();
-		}
-		else
-		{
-			it++;
+			spaceit = it;
 		}
 		lexeme.push_back(c);
+		it++;
 	}
 	if (0 == lexeme.compare(match))
 	{
+		q.erase(q.begin(), spaceit);
 		return true;
+	}
+	if (jmp) {
+		q.erase(q.begin(), spaceit);
 	}
 	return false;
 }
@@ -62,19 +59,34 @@ std::string ifreader::find_first_of (std::istream& s, std::list<char>& q, std::u
 		}
 		accum.push_back(c);
 	}
-	while (end.end() == end.find(c));
+	while (s.good() && end.end() == end.find(c));
 	return accum;
 }
 
-std::string ifreader::delimited (std::istream& s, std::list<char>& q, char delim, size_t ndelims) const
+std::string ifreader::delimited (std::istream& s, std::list<char>& q, std::unordered_set<char> delims, size_t ndelims) const
 {
 	std::unordered_set<char> whitespace = whiteset();
 	std::string accum = "";
 	for (size_t i = 0; i < ndelims; i++)
 	{
-		accum += find_first_of(s, q, {delim});
+		std::string found = find_first_of(s, q, delims);
+		std::string cut = trim(found, delims);
+		if (cut.empty()) {
+			found = cut;
+		}
+		accum += found;
+		if (found.empty()) {
+			ndelims++;
+		}
 	}
-	accum += find_first_of(s, q, whitespace);
+	std::string cut;
+	do
+	{
+		std::string next = find_first_of(s, q, whitespace);
+		accum += next;
+		cut = trim(next, whitespace);
+	}
+	while (cut.empty());
 	return accum;
 }
 
@@ -87,9 +99,12 @@ std::vector<std::string> ifreader::split (std::string s, std::string delim) cons
 	{
 		size_t prev = next;
 		next = s.find_first_of(delim, next);
-		accum.push_back(s.substr(prev, next-1));
+		if (std::string::npos == next)
+		{
+			next = ns;
+		}
+		accum.push_back(s.substr(prev, next - prev));
 	}
-	accum.push_back(s.substr(next, ns));
 	return accum;
 }
 

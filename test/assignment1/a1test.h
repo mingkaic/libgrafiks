@@ -10,8 +10,9 @@
 #include "starburst.h"
 #include "parallelogram.h"
 #include "randomtest.h"
-#include "polygontest.h"
-#include "../tester.h"
+#include "test/shared/polygontest.h"
+
+#include "tester.h"
 
 #ifndef LIBGRAFIKS_A1TEST_H
 #define LIBGRAFIKS_A1TEST_H
@@ -21,7 +22,6 @@ class a1test : public tester
 public:
 	// input: canvas width, height, and number of panels_
 	a1test(size_t width, size_t height) :
-		width_(width), height_(height),
 		tester(width, height, 4) {}
 
 	virtual void run (size_t testid, Drawable* drawable, PANEL_DRAW panel_drawer) const
@@ -36,7 +36,7 @@ public:
 
 		double opacity = 0.61;
 
-		DRAW draw = [drawable](int x, int y, unsigned int color)
+		DRAW draw = [drawable](int x, int y, int z, unsigned int color)
 		{
 			unsigned int oldColor = drawable->getPixel(x, y);
 			// take shapes of highest intensity on top
@@ -50,7 +50,7 @@ public:
 
 		glib::convex_filler pol1(draw);
 		glib::convex_filler pol2(
-		[this, opacity, drawable](int x, int y, unsigned int color)
+		[this, opacity, drawable](int x, int y, int z, unsigned int color)
 		{
 			unsigned int oldColor = drawable->getPixel(x, y);
 			unsigned int newColor = glib::opacity_transform(color, opacity) + glib::opacity_transform(oldColor, (1-opacity));
@@ -89,10 +89,6 @@ public:
 		panels_[2].test(t, v3);
 		panels_[3].test(t, v4);
 	}
-
-private:
-	size_t width_;
-	size_t height_;
 };
 
 #endif //LIBGRAFIKS_A1TEST_H

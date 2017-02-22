@@ -1,17 +1,19 @@
-#ifndef CLIENT_H
-#define CLIENT_H
 #include <vector>
 #include "drawable.h"
 #include "pageturner.h"
 #include "panel.h"
-#include "parse/simpreader.h"
 #include "assignment1/a1test.h"
+#include "assignment2/a2test.h"
+
+#ifndef CLIENT_H
+#define CLIENT_H
 
 class Client : public PageTurner
 {
 public:
     Client(Drawable *drawable);
-    ~Client() {
+    ~Client()
+    {
     	delete test;
     }
     void nextPage();

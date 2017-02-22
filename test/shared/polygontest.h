@@ -1,5 +1,5 @@
 #include "panel.h"
-#include "common.h"
+#include "test/assignment1/common.h"
 #include "polygons/polygon.h"
 #include <random>
 
@@ -35,10 +35,18 @@ struct polygon_test : public itester
                 size_t i = 0;
                 for (i = 0; i < pts.size() - 1; i++)
                 {
-                    glib::poly_model poly({origin, pts[i], pts[i+1]}, randomColor());
+                    pts[i].basecolor = randomColor();
+                    pts[i+1].basecolor = randomColor();
+                    origin.basecolor = randomColor();
+                    glib::poly_model poly({origin, pts[i], pts[i+1]});
                     shaper->draw(&poly);
                 }
-                glib::poly_model poly({origin, pts.back(), pts.front()}, randomColor());
+				glib::point p1 = pts.back();
+				glib::point p2 = pts.front();
+				p1.basecolor = randomColor();
+				p2.basecolor = randomColor();
+				origin.basecolor = randomColor();
+                glib::poly_model poly({origin, p1, p2});
                 shaper->draw(&poly);
             }
             break;
@@ -57,8 +65,14 @@ struct polygon_test : public itester
                         glib::point topright(edgex + x + sqrwidth, edgey + y);
                         glib::point botleft(edgex + x, edgey + y + sqrheight);
                         glib::point botright(edgex + x + sqrwidth, edgey + y + sqrheight);
-                        glib::poly_model toptri({topleft, topright, botright}, randomColor());
-                        glib::poly_model bottri({topleft, botleft, botright}, randomColor());
+						topleft.basecolor = randomColor();
+						topright.basecolor = randomColor();
+						botright.basecolor = randomColor();
+                        glib::poly_model toptri({topleft, topright, botright});
+						topleft.basecolor = randomColor();
+						botleft.basecolor = randomColor();
+						botright.basecolor = randomColor();
+                        glib::poly_model bottri({topleft, botleft, botright});
                         shaper->draw(&toptri);
                         shaper->draw(&bottri);
                     }
@@ -81,8 +95,14 @@ struct polygon_test : public itester
                         glib::point topright(dis(gen) + edgex + x + sqrwidth, dis(gen) + edgey + y);
                         glib::point botleft(dis(gen) + edgex + x, dis(gen) + edgey + y + sqrheight);
                         glib::point botright(dis(gen) + edgex + x + sqrwidth, dis(gen) + edgey + y + sqrheight);
-                        glib::poly_model toptri({topleft, topright, botright}, randomColor());
-                        glib::poly_model bottri({topleft, botleft, botright}, randomColor());
+						topleft.basecolor = randomColor();
+						topright.basecolor = randomColor();
+						botright.basecolor = randomColor();
+                        glib::poly_model toptri({topleft, topright, botright});
+						topleft.basecolor = randomColor();
+						botleft.basecolor = randomColor();
+						botright.basecolor = randomColor();
+                        glib::poly_model bottri({topleft, botleft, botright});
                         shaper->draw(&toptri);
                         shaper->draw(&bottri);
                     }
@@ -94,11 +114,14 @@ struct polygon_test : public itester
                 std::uniform_real_distribution<> dis(0, 299);
                 for (size_t i = 0; i < 20; ++i)
                 {
-                    glib::poly_model poly({
-                        glib::point(edgex + dis(gen), edgey + dis(gen)),
-                        glib::point(edgex + dis(gen), edgey + dis(gen)),
-                        glib::point(edgex + dis(gen), edgey + dis(gen))
-                    }, randomColor());
+					glib::point p1(edgex + dis(gen), edgey + dis(gen));
+					glib::point p2(edgex + dis(gen), edgey + dis(gen));
+					glib::point p3(edgex + dis(gen), edgey + dis(gen));
+					p1.basecolor = randomColor();
+					p2.basecolor = randomColor();
+					p3.basecolor = randomColor();
+
+                    glib::poly_model poly({p1, p2, p3});
                     shaper->draw(&poly);
                 }
             }

@@ -4,8 +4,10 @@
 // purpose: interface for drawing shapes
 //
 
+#include <cassert>
 #include <cmath>
-#include "lib/include/models/model.h"
+
+#include "models/model.h"
 #include "gutils.h"
 
 #ifndef __GLIB_SHAPE__
@@ -29,6 +31,11 @@ protected:
 struct shape_render {
 	std::shared_ptr<ishaper> shaper_ = nullptr;
 	shape_model* model_ = nullptr;
+
+	void run (void) {
+		assert(shaper_ && model_);
+		shaper_->draw(model_);
+	}
 };
 
 }

@@ -37,11 +37,6 @@ line_model::line_model (point a, point b)
     this->vertices_ = {a, b};
 }
 
-line_model::line_model (point a, point b, unsigned int color) : line_model(a, b)
-{
-    this->color_ = color;
-}
-
 double line_model::dx (void) const
 {
     return vertices_[1].x - vertices_[0].x;
@@ -50,6 +45,16 @@ double line_model::dx (void) const
 double line_model::dy (void) const
 {
     return vertices_[1].y - vertices_[0].y;
+}
+
+double line_model::dz (void) const
+{
+	return vertices_[1].z - vertices_[0].z;
+}
+
+color_grad line_model::dc (void) const
+{
+	return vertices_[1].basecolor - vertices_[0].basecolor;
 }
 
 iliner::iliner (DRAW drawable) : ishaper(drawable) {}

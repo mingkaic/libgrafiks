@@ -16,7 +16,7 @@
 
 2. Run CMakeLists.txt
 
-> cmake -DCMAKE_PREFIX_PATH=<path/to/qt/dir> <path/to/graphicsLibrary> && make
+> cmake -DCMAKE_PREFIX_PATH=<path/to/qt/dir>/clang_64/lib/cmake <path/to/graphicsLibrary> && make
 
 3. Run binary MainPage
 
