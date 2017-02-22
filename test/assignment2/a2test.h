@@ -8,13 +8,15 @@
 #include "triangletest.h"
 
 #include "tester.h"
-
+#include <iostream>
 #ifndef LIBGRAFIKS_A2TEST_H
 #define LIBGRAFIKS_A2TEST_H
 
 class a2test : public tester
 {
 public:
+	static std::string testdir;
+
 	// input: canvas width, height, and number of panels_
 	a2test(size_t width, size_t height) :
 		width_(width), height_(height),
@@ -112,14 +114,14 @@ public:
 			case 3: //
 			{
 				std::fill(zbuffer, zbuffer + (width_ * height_), 200);
-				glib::simp_reader reader4("test/simp/page4.simp", zbufferdepthgreen);
+				glib::simp_reader reader4(a2test::testdir + "/page4.simp", zbufferdepthgreen);
 				reader4.execute({(double)width_/2, (double)height_/2, 200}, pwidth, pheight);
 			}
 				break;
 			case 4: //
 			{
 				std::fill(zbuffer, zbuffer + (width_ * height_), 200);
-				glib::simp_reader reader5("test/simp/cube.simp", zbufferdepth);
+				glib::simp_reader reader5(a2test::testdir + "/page5.simp", zbufferdepth);
 				reader5.execute({(double)width_/2, (double)height_/2, 200}, pwidth, pheight);
 			}
 				break;
@@ -127,21 +129,21 @@ public:
 			case 5:
 			{
 				std::fill(zbuffer, zbuffer + (width_ * height_), 200);
-				glib::simp_reader reader6("test/simp/cube2.simp", zbufferdepth);
+				glib::simp_reader reader6(a2test::testdir + "/test1.simp", zbufferdepth);
 				reader6.execute({(double)width_/2, (double)height_/2, 200}, pwidth, pheight);
 			}
 				break;
 			case 6:
 			{
 				std::fill(zbuffer, zbuffer + (width_ * height_), 200);
-				glib::simp_reader reader7("test/simp/cube.simp", zbufferdepth);
+				glib::simp_reader reader7(a2test::testdir + "/test2.simp", zbufferdepth);
 				reader7.execute({(double)width_/2, (double)height_/2, 200}, pwidth, pheight);
 			}
 				break;
 			case 7:
 			{
 				std::fill(zbuffer, zbuffer + (width_ * height_), 200);
-				glib::simp_reader reader8("test/simp/cube.simp", zbufferdepth);
+				glib::simp_reader reader8(a2test::testdir + "/test3.simp", zbufferdepth);
 				reader8.execute({(double)width_/2, (double)height_/2, 200}, pwidth, pheight);
 			}
 				break;

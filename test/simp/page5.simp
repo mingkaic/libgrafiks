@@ -1,0 +1,10 @@
+{
+    file "circleleft"
+}
+{
+    file "circleright"
+}
+{
+    polygon (-20, 20, 100) (-50, 40, 0) (10, 40, 0)
+    polygon (-30, 30, 100) (-40, 60, 200) (50, 100, 0)
+}
