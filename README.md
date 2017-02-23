@@ -29,3 +29,5 @@ There is the option to specify the test directory by
 By default the test path is the executable's directory
 
 For assignment 2 pages 4, and 5 copy contents of /test/simp/ to the desired test directory or executable directory
+
+Pre-built binary can be found in the `build` directory
