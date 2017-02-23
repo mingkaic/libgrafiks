@@ -8,7 +8,7 @@
 #include <fstream>
 #include <unordered_set>
 
-#include "gutils.h"
+#include "lib/include/gutils.h"
 
 #ifndef LIBGRAFIKS_IFREADER_HPP
 #define LIBGRAFIKS_IFREADER_HPP

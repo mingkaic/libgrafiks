@@ -6,14 +6,14 @@
 #include <queue>
 #include <unordered_map>
 
-#include "parse/ifreader.h"
-#include "lines/line.h"
-#include "polygons/polygon.h"
-#include "models/transformation.h"
+#include "lib/include/parse/ifreader.h"
+#include "lib/include/lines/line.h"
+#include "lib/include/polygons/polygon.h"
+#include "lib/include/models/transformation.h"
 
-#include "lines/ddanalyzer.h"
-#include "polygons/convexwirer.h"
-#include "polygons/convexfiller.h"
+#include "lib/include/lines/ddanalyzer.h"
+#include "lib/include/polygons/convexwirer.h"
+#include "lib/include/polygons/convexfiller.h"
 
 #ifndef LIBGRAFIKS_SIMPREADER_HPP
 #define LIBGRAFIKS_SIMPREADER_HPP

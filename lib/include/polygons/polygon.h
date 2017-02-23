@@ -4,7 +4,7 @@
 // purpose: draws polygons
 //
 
-#include "shaper.h"
+#include "lib/include/shaper.h"
 
 #ifndef __GLIB_POLYGON__
 #define __GLIB_POLYGON__

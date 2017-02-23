@@ -6,8 +6,8 @@
 #include <cassert>
 #include <vector>
 
-#include "gutils.h"
-#include "models/matrix.h"
+#include "lib/include/gutils.h"
+#include "lib/include/models/matrix.h"
 
 #ifndef LIBGRAFIKS_TRANSFORMATION_HPP
 #define LIBGRAFIKS_TRANSFORMATION_HPP

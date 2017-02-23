@@ -1,6 +1,5 @@
-#include "lines/ddanalyzer.h"
-#include <iostream>
-// todo: remove
+#include "lib/include/lines/ddanalyzer.h"
+
 #ifdef __GLIB_DDA__
 
 namespace glib

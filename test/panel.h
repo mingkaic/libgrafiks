@@ -1,5 +1,5 @@
-#include "gutils.h"
-#include "shaper.h"
+#include "lib/include/gutils.h"
+#include "lib/include/shaper.h"
 
 #ifndef MTESTPANEL
 #define MTESTPANEL
@@ -22,13 +22,13 @@ public:
     void test (itester& t, std::vector<glib::ishaper*> liner) const
     {
         t.exec(liner, topleft_, 
-            botright_.x - topleft_.x,
-            botright_.y - topleft_.y);
+            (size_t) (botright_.x - topleft_.x),
+            (size_t) (botright_.y - topleft_.y));
     }
 
     size_t get_width (void) const
 	{
-		return botright_.x - topleft_.x;
+        return (size_t) (botright_.x - topleft_.x);
 	}
 
 	size_t get_height (void) const

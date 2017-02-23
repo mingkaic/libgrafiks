@@ -2,7 +2,7 @@
 // Created by Mingkai Chen on 2017-02-16.
 //
 
-#include "parse/simpreader.h"
+#include "lib/include/parse/simpreader.h"
 
 #ifdef LIBGRAFIKS_SIMPREADER_HPP
 
@@ -318,11 +318,12 @@ void simp_reader::parse (DRAW drawer)
 				{
 					throw std::exception(); // todo: better exception: invalid syntax
 				}
-				poly_model* poly = new poly_model({
-					to_point(pts[0], ",", filter),
-					to_point(pts[1], ",", filter),
-					to_point(pts[2], ",", filter)
-				});
+                std::vector<point> respts = {
+                    to_point(pts[0], ",", filter),
+                    to_point(pts[1], ",", filter),
+                    to_point(pts[2], ",", filter)
+                };
+                poly_model* poly = new poly_model(respts);
 				inst = {poly, goner, pushcount};
 			}
 				break;

@@ -4,7 +4,7 @@
 // purpose: draws polygon using convex filling algorithm
 //
 
-#include "polygons/polygon.h"
+#include "lib/include/polygons/polygon.h"
 
 #ifndef __GLIB_CONVEXFILL__
 #define __GLIB_CONVEXFILL__

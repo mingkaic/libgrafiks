@@ -2,17 +2,17 @@
 // Created by Mingkai Chen on 2017-02-18.
 //
 
-#include "lines/ddanalyzer.h"
-#include "lines/bresenham.h"
-#include "lines/antialias.h"
-#include "polygons/convexfiller.h"
+#include "lib/include/lines/ddanalyzer.h"
+#include "lib/include/lines/bresenham.h"
+#include "lib/include/lines/antialias.h"
+#include "lib/include/polygons/convexfiller.h"
 
-#include "starburst.h"
-#include "parallelogram.h"
-#include "randomtest.h"
+#include "test/assignment1/starburst.h"
+#include "test/assignment1/parallelogram.h"
+#include "test/assignment1/randomtest.h"
 #include "test/shared/polygontest.h"
 
-#include "tester.h"
+#include "test/tester.h"
 
 #ifndef LIBGRAFIKS_A1TEST_H
 #define LIBGRAFIKS_A1TEST_H

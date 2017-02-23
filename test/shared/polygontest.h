@@ -1,6 +1,7 @@
-#include "panel.h"
+#include "test/panel.h"
 #include "test/assignment1/common.h"
-#include "polygons/polygon.h"
+#include "lib/include/polygons/polygon.h"
+
 #include <random>
 
 #ifndef POLYTEST
@@ -10,9 +11,10 @@ struct polygon_test : public itester
 {
     unsigned int randomColor (void)
     {
-        unsigned int basecolor = std::rand() % 0x00f0f0f0;
-        basecolor += 0xff0f0f0f0f; // base color must be above 0x0f per color channel
-        return basecolor;
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<> dis(0xff0f0f0f, 0xffffffff);
+        return dis(gen);
     }
 
     size_t scene = 0;

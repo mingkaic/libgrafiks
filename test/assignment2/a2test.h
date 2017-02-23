@@ -2,12 +2,14 @@
 // Created by Mingkai Chen on 2017-02-18.
 //
 
-#include "parse/simpreader.h"
+#include <ctime>
+
+#include "lib/include/parse/simpreader.h"
 
 #include "test/shared/polygontest.h"
-#include "triangletest.h"
+#include "test/assignment2/triangletest.h"
 
-#include "tester.h"
+#include "test/tester.h"
 #include <iostream>
 #ifndef LIBGRAFIKS_A2TEST_H
 #define LIBGRAFIKS_A2TEST_H
@@ -33,10 +35,10 @@ public:
 
 	virtual void run (size_t testid, Drawable* drawable, PANEL_DRAW panel_drawer) const
 	{
-		double opacity = 0.61;
+        double opacity = 0.61;
 		DRAW translucent =
 		[this, opacity, drawable](int x, int y, int z, unsigned int c)
-		{
+        {
 			unsigned int oldColor = drawable->getPixel(x, y);
 			unsigned int newColor = glib::opacity_transform(c, opacity) + glib::opacity_transform(oldColor, (1-opacity));
 			drawable->setPixel(x, y, newColor);

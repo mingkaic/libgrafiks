@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <memory>
 
 #include "models/model.h"
 #include "gutils.h"

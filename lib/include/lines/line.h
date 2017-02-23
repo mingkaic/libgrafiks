@@ -4,8 +4,8 @@
 // purpose: draws lines
 //
 
-#include "shaper.h"
-#include "models/transformation.h"
+#include "lib/include/shaper.h"
+#include "lib/include/models/transformation.h"
 
 #ifndef __GLIB_LINE__
 #define __GLIB_LINE__

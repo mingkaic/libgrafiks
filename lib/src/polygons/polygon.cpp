@@ -1,4 +1,5 @@
-#include "polygons/polygon.h"
+#include "lib/include/polygons/polygon.h"
+#include <algorithm>
 
 #ifdef __GLIB_POLYGON__
 

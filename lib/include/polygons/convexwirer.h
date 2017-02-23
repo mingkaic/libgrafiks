@@ -2,7 +2,7 @@
 // Created by Mingkai Chen on 2017-02-18.
 //
 
-#include "polygons/polygon.h"
+#include "lib/include/polygons/polygon.h"
 
 #ifndef LIBGRAFIKS_CONVEXWIRER_HPP
 #define LIBGRAFIKS_CONVEXWIRER_HPP

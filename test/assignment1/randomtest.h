@@ -1,4 +1,4 @@
-#include "panel.h"
+#include "test/panel.h"
 
 #ifndef RANDOMTEST
 #define RANDOMTEST
@@ -8,7 +8,7 @@ struct random_test : public itester
     random_test (void) {}
     random_test (size_t nlines) : nlines_(nlines) {}
 
-    virtual void exec (std::vector<glib::ishaper*>& shapers, const glib::point& topcorner, size_t width, size_t height)
+    virtual void exec (std::vector<glib::ishaper*>& shapers, const glib::point& topcorner, size_t, size_t)
     {
         double x = topcorner.x;
         double y = topcorner.y;

@@ -2,3 +2,4 @@
 *.sh
 cmake-build-debug
 .idea
+*.pro.user

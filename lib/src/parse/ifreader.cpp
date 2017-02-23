@@ -2,7 +2,7 @@
 // Created by Mingkai Chen on 2017-02-17.
 //
 
-#include "parse/ifreader.h"
+#include "lib/include/parse/ifreader.h"
 
 #ifdef LIBGRAFIKS_IFREADER_HPP
 

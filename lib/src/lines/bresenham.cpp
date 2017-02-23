@@ -1,4 +1,4 @@
-#include "lines/bresenham.h"
+#include "lib/include/lines/bresenham.h"
 
 #ifdef __GLIB_BRESEN__
 

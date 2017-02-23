@@ -1,4 +1,4 @@
-#include "lines/antialias.h"
+#include "lib/include/lines/antialias.h"
 
 #ifdef __GLIB_AALIAS__
 

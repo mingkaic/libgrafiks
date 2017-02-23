@@ -2,8 +2,8 @@
 // Created by Mingkai Chen on 2017-02-18.
 //
 
-#include "polygons/convexwirer.h"
-#include "lines/bresenham.h"
+#include "lib/include/polygons/convexwirer.h"
+#include "lib/include/lines/bresenham.h"
 
 #ifdef LIBGRAFIKS_CONVEXWIRER_HPP
 

@@ -7,7 +7,9 @@
 
 struct regulartri_test : public itester
 {
-	regulartri_test (void) {}
+    regulartri_test (void) {
+        colors_ = {1, 0.85, 0.7, 0.55, 0.4, 0.25};
+    }
 	regulartri_test (size_t length, std::vector<double> colors) :
 		lineLength_(length), colors_(colors) {}
 
@@ -49,7 +51,7 @@ struct regulartri_test : public itester
 
 private:
 	size_t lineLength_ = 275;
-	std::vector<double> colors_ = {1, 0.85, 0.7, 0.55, 0.4, 0.25};
+    std::vector<double> colors_;
 };
 
 #endif //LIBGRAFIKS_TRIANGLETEST_H

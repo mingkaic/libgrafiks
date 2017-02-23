@@ -2,7 +2,7 @@
 #include <vector>
 #include <cmath>
 
-#include "gutils.h"
+#include "lib/include/gutils.h"
 
 #ifndef TESTCOMMONS
 #define TESTCOMMONS

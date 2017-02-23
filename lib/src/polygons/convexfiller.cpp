@@ -1,7 +1,7 @@
 #include <limits>
 
-#include "polygons/convexfiller.h"
-#include "lines/bresenham.h"
+#include "lib/include/polygons/convexfiller.h"
+#include "lib/include/lines/bresenham.h"
 
 #ifdef __GLIB_CONVEXFILL__
 

@@ -1,6 +1,6 @@
-#include "panel.h"
-#include "common.h"
-#include "lines/line.h"
+#include "test/panel.h"
+#include "test/assignment1/common.h"
+#include "lib/include/lines/line.h"
 
 #ifndef STARBURSTTEST
 #define STARBURSTTEST

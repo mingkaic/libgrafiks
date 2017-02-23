@@ -16,7 +16,21 @@
 
 2. Run CMakeLists.txt
 
-> cmake -DCMAKE_PREFIX_PATH=<path/to/qt/dir>/clang_64/lib/cmake <path/to/graphicsLibrary> && make
+> cmake -DCMAKE_PREFIX_PATH=<path/to/qt/cmakedir> <path/to/graphicsLibrary>
+
+Path to qt directory can take the form of: 
+
+For windows and linux installations:
+
+- <path\to\qtdirectory>\5.8\msvc2015_64\lib\cmake
+
+For mac installations:
+
+- <path\to\qtdirectory>/clang_64/lib/cmake
+
+Run generated make file
+
+
 
 3. Run binary MainPage
 
@@ -28,6 +42,4 @@ There is the option to specify the test directory by
 
 By default the test path is the executable's directory
 
-For assignment 2 pages 4, and 5 copy contents of /test/simp/ to the desired test directory or executable directory
-
-Pre-built binary can be found in the `build` directory
+For assignment 2 pages 4, and 5 copy contents of /test/simp/ to the desired test directory or working directory

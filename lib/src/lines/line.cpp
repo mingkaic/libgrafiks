@@ -1,4 +1,4 @@
-#include "lines/line.h"
+#include "lib/include/lines/line.h"
 
 #ifdef __GLIB_LINE__
 

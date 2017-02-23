@@ -4,12 +4,16 @@
 // purpose: provides common macros and utility functions
 //
 
+#include <cstdlib>
+#include <cstdint>
 #include <cmath>
 #include <utility>
 #include <functional>
 
 #ifndef __GLIB_UTIL__
 #define __GLIB_UTIL__
+
+# define M_PI          3.141592653589793238462643383279502884L
 
 namespace glib
 {

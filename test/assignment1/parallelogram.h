@@ -1,5 +1,5 @@
-#include "panel.h"
-#include "lines/line.h"
+#include "test/panel.h"
+#include "lib/include/lines/line.h"
 
 #ifndef PARALLELOTEST
 #define PARALLELOTEST
