@@ -6,6 +6,7 @@
 #include <regex>
 
 std::string a2test::testdir = ".";
+std::string a3test::simpfile = "";
 
 // you can rewrite main(.cpp/.h) and client(.cpp/.h) and add more files.
 // Leave renderarea(.cpp/.h) and window(.cpp/.h) unchanged.
@@ -20,14 +21,15 @@ int main(int argc, char *argv[])
     std::regex testdirflag ("-testdir=(.*)");
     if (argc > 1)
     {
-        for (int i = 1 ; i < argc; i++)
-        {
-            char* arg = argv[i];
-            if (std::regex_match (arg, cm, testdirflag) && cm.size() > 1)
-            {
-				a2test::testdir = cm[1];
-            }
-        }
+		a3test::simpfile = argv[1];
+//        for (int i = 1 ; i < argc; i++)
+//        {
+//            char* arg = argv[i];
+//            if (std::regex_match (arg, cm, testdirflag) && cm.size() > 1)
+//            {
+//				a2test::testdir = cm[1];
+//            }
+//        }
     }
 
     QApplication app(argc, argv);   // because it's a Qt application

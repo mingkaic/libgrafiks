@@ -5,7 +5,7 @@
 #define CANVASH 750
 
 Client::Client(Drawable *drawable) :
-	test(new a2test(CANVASW, CANVASH)),
+	test(new a3test(CANVASW, CANVASH)),
 	drawable(drawable) {}
 
 #define BG_COLOR 0xffffffff

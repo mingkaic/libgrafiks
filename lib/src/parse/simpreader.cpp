@@ -21,7 +21,12 @@ enum SIMP_TOK
 	POLYGON,
 	FILE,
 	WIRE,
-	FILL
+	FILL,
+	CAMERA,
+	OBJ,
+	AMBIENT,
+	DEPTH,
+	SURFACE
 };
 
 simp_reader::simp_reader (std::string path, DRAW drawer)
@@ -159,12 +164,18 @@ void simp_reader::tokenize (std::istream& s)
 				lexeme.push_back(c);
 				token = POP_STACK;
 				break;
-			case 's': // scale
-				if (this->lookahead(s, lhqueue, "cale"))
+			case 's': // scale or surface
+				if (this->lookahead(s, lhqueue, "cale", false))
 				{
 					token = SCALE;
 					// look at format <x>,<y>,<z>
 					lexeme = this->delimited(s, lhqueue, {','}, 2);
+				}
+				else if (this->lookahead(s, lhqueue, "urface"))
+				{
+					token = SURFACE;
+					// expect format: (<r>,<g>,<b>)
+					lexeme = this->find_first_of(s, lhqueue, {')'});
 				}
 				break;
 			case 'r': // rotate
@@ -188,6 +199,7 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = LINE;
 					// look at format (<x>,<y>,<h>)(<x>,<y>,<h>)
+					// OR (<x>,<y>,<h>,<r>,<g>,<b>)(<x>,<y>,<h>,<r>,<g>,<b>)
 					for (size_t i = 0; i < 2; i++) {
 						lexeme += this->find_first_of(s, lhqueue, {')'});
 					}
@@ -196,6 +208,7 @@ void simp_reader::tokenize (std::istream& s)
 			case 'p': // polygon
 				if (this->lookahead(s, lhqueue, "olygon")) {
 					token = POLYGON;
+					// look at format (<x>,<y>,<h>)(<x>,<y>,<h>),(<x>,<y>,<h>)
 					for (size_t i = 0; i < 3; i++) {
 						lexeme += this->find_first_of(s, lhqueue, {')'});
 					}
@@ -221,6 +234,41 @@ void simp_reader::tokenize (std::istream& s)
 					lexeme = "fill";
 				}
 				break;
+			case 'c': // camera
+				if (this->lookahead(s, lhqueue, "amera"))
+				{
+					token = CAMERA;
+					// expect format <xlow> <ylow> <xhigh> <yhigh> <hither> <yon>
+					lexeme = this->delimited(s, lhqueue, whitespace, 5);
+				}
+				break;
+			case 'o': // obj
+				if (this->lookahead(s, lhqueue, "bj"))
+				{
+					token = OBJ;
+					// expect format "filename"
+					for (size_t i = 0; i < 2; i++) {
+						lexeme += this->find_first_of(s, lhqueue, {'"'});
+					}
+				}
+				break;
+			case 'a': // ambient
+				if (this->lookahead(s, lhqueue, "mbient"))
+				{
+					token = AMBIENT;
+					// expect format: (<r>,<g>,<b>)
+					lexeme = this->find_first_of(s, lhqueue, {')'});
+				}
+				break;
+			case 'd': // depth
+				if (this->lookahead(s, lhqueue, "epth"))
+				{
+					token = DEPTH;
+					// expect format: <near> <far> (<r>,<g>,<b>)
+					lexeme = this->delimited(s, lhqueue, whitespace, 2);
+					lexeme += this->find_first_of(s, lhqueue, {')'});
+				}
+				break;
 			default: // ignore
 				break;
 		}
@@ -230,12 +278,12 @@ void simp_reader::tokenize (std::istream& s)
 	}
 }
 
-point simp_reader::to_point(std::string pts, std::string delim,
+point simp_reader::to_point (std::string pts, std::string delim,
 		std::unordered_set<char> ignore) const
 {
-	// pts should be in format #,#,#
+// pts should be in format #,#,# or #,#,#,#,#,#
 	std::vector<std::string> vals = this->split(pts, delim);
-	if (vals.size() < 3)
+	if (vals.size() != 3 && vals.size() != 6)
 	{
 		throw std::exception(); // todo: better exception: invalid syntax
 	}
@@ -244,7 +292,12 @@ point simp_reader::to_point(std::string pts, std::string delim,
 	{
 		sfactors.push_back(std::atof(this->trim(sval, ignore).data())); // doesn't check for non-numerics
 	}
-	return point{sfactors[0], sfactors[1], sfactors[2]};
+	point p{sfactors[0], sfactors[1], sfactors[2]};
+	if (sfactors.size() > 3)
+	{
+		p.basecolor = color((uint8_t) 255 * sfactors[3], (uint8_t) 255 * sfactors[4], (uint8_t) 255 * sfactors[5]);
+	}
+	return p;
 }
 
 // instructions are either models or transformations
@@ -279,7 +332,7 @@ void simp_reader::parse (DRAW drawer)
 				inst = {new scale(pt), pushcount};
 			}
 				break;
-			case ROTATE: // lexeme should be in format [X,Y,Z],#
+			case ROTATE: // lexeme should be in format [X Y Z],#
 			{
 				std::vector<std::string> vals = this->split(lexeme, " ");
 				if (vals.size() != 2)
@@ -346,6 +399,82 @@ void simp_reader::parse (DRAW drawer)
 				break;
 			case FILL:
 				goner = std::shared_ptr<ishaper>(new convex_filler(drawer));
+				break;
+			// todo: complete all below
+			case CAMERA:
+			{
+				// expect format <xlow> <ylow> <xhigh> <yhigh> <hither> <yon>
+				std::vector<std::string> vals = this->split(lexeme, " ");
+				if (vals.size() != 6)
+				{
+					throw std::exception(); // todo: better exception: invalid syntax
+				}
+				double xlow = std::atof(this->trim(vals[0], whitespace).data());
+				double ylow = std::atof(this->trim(vals[1], whitespace).data());
+				double xhigh = std::atof(this->trim(vals[2], whitespace).data());
+				double yhigh = std::atof(this->trim(vals[3], whitespace).data());
+				double hither = std::atof(this->trim(vals[4], whitespace).data());
+				double yon = std::atof(this->trim(vals[5], whitespace).data());
+
+			}
+				break;
+			case OBJ:
+			{
+				std::string f = this->trim(lexeme, filter);
+				f += ".obj";
+				// todo: read and parse object file...
+			}
+				break;
+			case AMBIENT:
+			{
+				// expect format: (<r>,<g>,<b>)
+				std::vector<std::string> rgb = this->split(lexeme, ",");
+				if (rgb.size() != 3)
+				{
+					throw std::exception(); // todo: better exception: invalid syntax
+				}
+				double r = std::atof(this->trim(rgb[0], whitespace).data());
+				double g = std::atof(this->trim(rgb[1], whitespace).data());
+				double b = std::atof(this->trim(rgb[2], whitespace).data());
+			}
+				break;
+			case DEPTH:
+			{
+				// expect format: <near> <far> (<r>,<g>,<b>)
+				std::vector<std::string> vals = this->split(lexeme, " ");
+				size_t nv = vals.size();
+				if (nv < 3)
+				{
+					throw std::exception(); // todo: better exception: invalid syntax
+				}
+				double near = std::atof(this->trim(vals[0], whitespace).data());
+				double far = std::atof(this->trim(vals[1], whitespace).data());
+				std::string rgbs = "";
+				for (size_t i = 2; i < nv; i++)
+				{
+					rgbs += vals[i];
+				}
+				std::vector<std::string> rgb = this->split(rgbs, ",");
+				if (rgb.size() != 3)
+				{
+					throw std::exception(); // todo: better exception: invalid syntax
+				}
+				double r = std::atof(this->trim(rgb[0], whitespace).data());
+				double g = std::atof(this->trim(rgb[1], whitespace).data());
+				double b = std::atof(this->trim(rgb[2], whitespace).data());
+			}
+			case SURFACE:
+			{
+				// expect format: (<r>,<g>,<b>)
+				std::vector<std::string> rgb = this->split(lexeme, ",");
+				if (rgb.size() != 3)
+				{
+					throw std::exception(); // todo: better exception: invalid syntax
+				}
+				double r = std::atof(this->trim(rgb[0], whitespace).data());
+				double g = std::atof(this->trim(rgb[1], whitespace).data());
+				double b = std::atof(this->trim(rgb[2], whitespace).data());
+			}
 				break;
 			default: // ignore INVALID
 				break;

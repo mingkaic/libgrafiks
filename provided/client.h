@@ -4,6 +4,7 @@
 #include "test/panel.h"
 #include "test/assignment1/a1test.h"
 #include "test/assignment2/a2test.h"
+#include "test/assignment3/a3test.h"
 
 #ifndef CLIENT_H
 #define CLIENT_H
