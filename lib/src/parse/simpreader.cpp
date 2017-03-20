@@ -85,7 +85,7 @@ void simp_reader::execute (point centeryon, size_t width, size_t height)
 		}
 		else
 		{
-			ctf = i.trans_->matmul(ctf);
+			ctf = ctf.matmul(*i.trans_);
 		}
 	}
 

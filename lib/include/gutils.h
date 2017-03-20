@@ -13,7 +13,9 @@
 #ifndef __GLIB_UTIL__
 #define __GLIB_UTIL__
 
-# define M_PI          3.141592653589793238462643383279502884L
+#ifndef M_PI
+#define M_PI          3.141592653589793238462643383279502884L
+#endif // M_PI
 
 namespace glib
 {

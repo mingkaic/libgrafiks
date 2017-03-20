@@ -1,11 +1,16 @@
 # circle
 {
-    file "circleleft"
+    translate 50, -50, 60
+    file "circle"
 }
 # cylinder
 {
-    file "circleright"
-
+    {
+        translate -50, -50, 50
+        rotate X 42
+        scale 3, 3, 1
+        file "circle"
+    }
     polygon (-20, -50, 200) (-20, -5, 200) (-25, 2, 160)
     polygon (-25, -50, 160) (-25, 2, 160) (-20, -50, 200)
 

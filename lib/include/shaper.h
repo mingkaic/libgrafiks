@@ -29,7 +29,8 @@ protected:
 };
 
 // rendering wrapper object
-struct shape_render {
+struct shape_render
+{
 	std::shared_ptr<ishaper> shaper_ = nullptr;
 	shape_model* model_ = nullptr;
 

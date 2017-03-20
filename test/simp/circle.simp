@@ -1,160 +1,128 @@
 # draws a circle of radius 1
 {
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 11.25
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 22.5
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 33.75
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 45
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 56.25
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 67.5
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 78.75
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 90
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 101.25
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 112.5
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 123.75
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 135
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 146.25
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 157.5
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 168.75
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 180
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 191.25
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 202.5
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 213.75
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 225
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 236.25
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 247.5
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 258.75
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 270
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 281.25
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 292.5
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 303.75
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 315
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 326.25
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 337.5
-    translate 50, -50, 60
     file "equitriangle"
 }
 {
     rotate Z 348.75
-    translate 50, -50, 60
     file "equitriangle"
 }
