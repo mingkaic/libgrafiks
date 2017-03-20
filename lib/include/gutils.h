@@ -90,6 +90,16 @@ color_grad operator / (const color_grad& lhs, double rhs);
 
 color operator * (const color& lhs, double magnitude);
 
+struct normal
+{
+	normal (void) : x(0), y(0), z(0) {}
+	normal (double x, double y, double z = 0) :
+		x(x), y(y), z(z) {}
+	double x;
+	double y;
+	double z;
+};
+
 struct point
 {
 	point (void) : x(0), y(0), z(0) {}
@@ -99,6 +109,7 @@ struct point
 	double x;
 	double y;
 	double z;
+	normal n;
 	color basecolor = 0xffffffff; // white
 };
 

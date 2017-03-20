@@ -33,6 +33,9 @@ protected:
 	// return desired delimiter separated string in the format ...delim...delim...whitespace
 	std::string delimited (std::istream& s, std::list<char>& q, std::unordered_set<char> delims, size_t ndelims) const;
 
+	// return everything in s and q up until delims appears
+	std::string exhaust_until (std::istream& s, std::list<char>& q, char delims) const;
+
 	virtual void tokenize (std::istream& s) = 0;
 
 	// USEFUL HELPER FUNCTIONS FOR PARSING

@@ -1,0 +1,199 @@
+//
+// Created by Mingkai Chen on 2017-03-20.
+//
+
+#include "lib/include/parse/objreader.h"
+
+#ifdef LIBGRAFIKS_OBJREADER_HPP
+
+namespace glib
+{
+
+enum OBJ_TOK
+{
+	INVALID = 0,
+	VERTEX,
+	VERTEX_NORMAL,
+	FACE
+};
+
+obj_reader::obj_reader (std::string path)
+{
+	std::ifstream fs(path);
+	tokenize(fs);
+	parse([](int,int,int,unsigned) {});
+	fs.close();
+}
+
+obj_reader::~obj_reader (void)
+{
+	for (poly_model* model : objects_)
+	{
+		delete model;
+	}
+}
+
+void obj_reader::tokenize (std::istream& s)
+{
+	std::unordered_set<char> whitespace = whiteset();
+	std::list<char> lhqueue; // look ahead queue
+	while (s.good())
+	{
+		char c = s.get();
+		std::string lexeme = "";
+		OBJ_TOK token = INVALID;
+		switch(c)
+		{
+			case '#': // comment
+				// skip until next new line
+				exhaust_until(s, lhqueue, '\n');
+				break;
+			case 'v': // vertex or vertex normal
+				if (this->lookahead(s, lhqueue, "n", false))
+				{
+					token = VERTEX_NORMAL;
+					lexeme = exhaust_until(s, lhqueue, '\n');
+				}
+				else if (this->lookahead(s, lhqueue, "t", false))
+				{
+					// treat vt as a comment
+					exhaust_until(s, lhqueue, '\n');
+				}
+				else if (this->lookahead(s, lhqueue, " "))
+				{
+					token = VERTEX;
+					lexeme = exhaust_until(s, lhqueue, '\n');
+				}
+				break;
+			case 'f': // face
+				if (this->lookahead(s, lhqueue, " "))
+				{
+					token = FACE;
+					lexeme = exhaust_until(s, lhqueue, '\n');
+				}
+				break;
+			default: // ignore
+				break;
+		}
+		if (token != INVALID) {
+			lextok_.push({lexeme, token});
+		}
+	}
+}
+
+// instructions are either models or transformations
+void obj_reader::parse (DRAW drawer)
+{
+	std::unordered_set<char> whitespace = whiteset();
+	std::vector<point> pts;
+	std::vector<normal> norms;
+
+	while (false == lextok_.empty())
+	{
+		LEX_TOK lt = lextok_.front();
+		std::string lexeme = lt.first;
+		OBJ_TOK token = (OBJ_TOK) lt.second;
+		lextok_.pop();
+		switch (token)
+		{
+			case VERTEX:
+			{
+				std::vector<std::string> vals = this->split(lexeme, " ");
+				size_t nv = vals.size();
+				if (nv != 3 && nv != 4 && nv != 6 && nv != 7)
+				{
+					throw std::exception(); // todo: better exception: invalid syntax
+				}
+				double x = std::atof(this->trim(vals[0], whitespace).data());
+				double y = std::atof(this->trim(vals[1], whitespace).data());
+				double z = std::atof(this->trim(vals[2], whitespace).data());
+				if (nv == 4 || nv == 7)
+				{
+					double h = std::atof(this->trim(vals[3], whitespace).data());
+					x /= h;
+					y /= h;
+					z /= h;
+				}
+				point p(x, y, z);
+				if (nv == 6 || nv == 7)
+				{
+					double r = std::atof(this->trim(vals[nv-3], whitespace).data());
+					double g = std::atof(this->trim(vals[nv-2], whitespace).data());
+					double b = std::atof(this->trim(vals[nv-1], whitespace).data());
+					p.basecolor = color((uint8_t) 255 * r, (uint8_t) 255 * g, (uint8_t) 255 * b);
+				}
+				pts.push_back(p);
+			}
+				break;
+			case VERTEX_NORMAL:
+			{
+				std::vector<std::string> vals = this->split(lexeme, " ");
+				size_t nv = vals.size();
+				if (nv != 3)
+				{
+					throw std::exception(); // todo: better exception: invalid syntax
+				}
+				double x = std::atof(this->trim(vals[0], whitespace).data());
+				double y = std::atof(this->trim(vals[1], whitespace).data());
+				double z = std::atof(this->trim(vals[2], whitespace).data());
+				norms.push_back(normal(x, y, z));
+			}
+				break;
+			case FACE:
+			{
+				std::vector<std::string> vals = this->split(lexeme, " ");
+				size_t nv = vals.size();
+				if (nv < 3)
+				{
+					throw std::exception(); // todo: better exception: invalid syntax
+				}
+				std::vector<point> vts;
+
+				// each val can be <num> or <num>//<num>
+				for (std::string val : vals)
+				{
+					std::vector<std::string> nums = this->split(val, "/");
+					int vidx = std::atoi(this->trim(nums[0], whitespace).data());
+					point p;
+					if (vidx < 0)
+					{
+						p = pts[pts.size() + vidx];
+					}
+					else
+					{
+						p = pts[vidx];
+					}
+					if (nums.size() == 2)
+					{
+						int nidx = std::atoi(this->trim(nums[2], whitespace).data());
+						if (nidx < 0)
+						{
+							p.n = norms[norms.size() + nidx];
+						}
+						else
+						{
+							p.n = norms[nidx];
+						}
+					}
+					vts.push_back(p);
+				}
+				// triangular points to avoid concave faces
+				point& first = vts[0];
+				auto it = ++vts.begin();
+				auto et = vts.end();
+				while (it+1 != et)
+				{
+					objects_.push_back(
+						new poly_model({first, *it, *(++it)}));
+				}
+			}
+				break;
+			default: // ignore INVALID
+				break;
+		}
+	}
+}
+
+}
+
+#endif

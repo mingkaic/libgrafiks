@@ -148,13 +148,11 @@ void simp_reader::tokenize (std::istream& s)
 		char c = s.get();
 		std::string lexeme = "";
 		SIMP_TOK token = INVALID;
-		switch(c) {
+		switch(c)
+		{
 			case '#': // comment
 				// skip until next new line
-				while (s.good() && c != '\n')
-				{
-					c = s.get();
-				}
+				exhaust_until(s, lhqueue, '\n');
 				break;
 			case '{':
 				lexeme.push_back(c);
@@ -312,14 +310,20 @@ void simp_reader::parse (DRAW drawer)
 	std::shared_ptr<ishaper> liner = std::shared_ptr<ishaper>(new dda_liner(drawer));
 	std::shared_ptr<ishaper> goner = std::shared_ptr<ishaper>(new convex_filler(drawer));
 
+	color surface(0xffffffff);
+	color ambient(0);
+	std::pair<double, double> nearfar;
+	color depth(0);
+
 	while (false == lextok_.empty())
 	{
+		INSTRUCTION inst;
 		LEX_TOK lt = lextok_.front();
 		std::string lexeme = lt.first;
 		SIMP_TOK token = (SIMP_TOK) lt.second;
-		INSTRUCTION inst;
 		lextok_.pop();
-		switch (token) {
+		switch (token)
+		{
 			case PUSH_STACK:
 				pushcount++;
 				break;
@@ -400,7 +404,6 @@ void simp_reader::parse (DRAW drawer)
 			case FILL:
 				goner = std::shared_ptr<ishaper>(new convex_filler(drawer));
 				break;
-			// todo: complete all below
 			case CAMERA:
 			{
 				// expect format <xlow> <ylow> <xhigh> <yhigh> <hither> <yon>
@@ -415,14 +418,27 @@ void simp_reader::parse (DRAW drawer)
 				double yhigh = std::atof(this->trim(vals[3], whitespace).data());
 				double hither = std::atof(this->trim(vals[4], whitespace).data());
 				double yon = std::atof(this->trim(vals[5], whitespace).data());
+				// todo: define transformation (special)
 
 			}
 				break;
 			case OBJ:
 			{
+				std::vector<poly_model*> objs;
 				std::string f = this->trim(lexeme, filter);
 				f += ".obj";
-				// todo: read and parse object file...
+				obj_reader reader(directory_ + "/" + f);
+				reader.get_objects(objs);
+				if (!objs.empty())
+				{
+					auto it = objs.begin();
+					inst = {*it, goner, pushcount};
+					it++;
+					for (auto et = objs.end(); it != et; it++)
+					{
+						instructions_.push_back({*it, goner, pushcount});
+					}
+				}
 			}
 				break;
 			case AMBIENT:
@@ -436,6 +452,7 @@ void simp_reader::parse (DRAW drawer)
 				double r = std::atof(this->trim(rgb[0], whitespace).data());
 				double g = std::atof(this->trim(rgb[1], whitespace).data());
 				double b = std::atof(this->trim(rgb[2], whitespace).data());
+				ambient = (255*r, 255*g, 255*b);
 			}
 				break;
 			case DEPTH:
@@ -462,6 +479,8 @@ void simp_reader::parse (DRAW drawer)
 				double r = std::atof(this->trim(rgb[0], whitespace).data());
 				double g = std::atof(this->trim(rgb[1], whitespace).data());
 				double b = std::atof(this->trim(rgb[2], whitespace).data());
+				depth = (255*r, 255*g, 255*b);
+				nearfar = {near, far};
 			}
 			case SURFACE:
 			{
@@ -474,10 +493,15 @@ void simp_reader::parse (DRAW drawer)
 				double r = std::atof(this->trim(rgb[0], whitespace).data());
 				double g = std::atof(this->trim(rgb[1], whitespace).data());
 				double b = std::atof(this->trim(rgb[2], whitespace).data());
+				surface = (255*r, 255*g, 255*b);
 			}
 				break;
 			default: // ignore INVALID
 				break;
+		}
+		if (inst.ismodel_)
+		{
+			// todo: add ambience, surface, nearfar, depth to model
 		}
 		instructions_.push_back(inst);
 	}

@@ -90,6 +90,40 @@ std::string ifreader::delimited (std::istream& s, std::list<char>& q, std::unord
 	return accum;
 }
 
+std::string ifreader::exhaust_until (std::istream& s, std::list<char>& q, char delims) const
+{
+	std::string accum = "";
+	bool found = false;
+	while (false == q.empty() && !found)
+	{
+		if (delims == q.front())
+		{
+			found = true;
+		}
+		else
+		{
+			accum += q.front();
+		}
+		q.pop_front();
+	}
+	if (!found)
+	{
+		while (s.good() && !found)
+		{
+			char c = s.get();
+			if (delims == c)
+			{
+				found = true;
+			}
+			else
+			{
+				accum += c;
+			}
+		}
+	}
+	return accum;
+}
+
 std::vector<std::string> ifreader::split (std::string s, std::string delim) const
 {
 	size_t ns = s.size();

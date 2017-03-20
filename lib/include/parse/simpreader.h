@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 #include "lib/include/parse/ifreader.h"
+#include "lib/include/parse/objreader.h"
 #include "lib/include/lines/line.h"
 #include "lib/include/polygons/polygon.h"
 #include "lib/include/models/transformation.h"
@@ -49,7 +50,9 @@ protected:
 		}
 
 		bool ismodel_;
+
 		shape_render render_;
+
 		transformation* trans_ = nullptr;
 		simp_reader* owner_ = nullptr;
 
