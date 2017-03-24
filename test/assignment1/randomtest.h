@@ -10,8 +10,8 @@ struct random_test : public itester
 
     virtual void exec (std::vector<glib::ishaper*>& shapers, const glib::point& topcorner, size_t, size_t)
     {
-        double x = topcorner.x;
-        double y = topcorner.y;
+        double x = topcorner.getX();
+        double y = topcorner.getY();
         for (size_t i = 0; i < nlines_; i++)
         {
             unsigned int basecolor = std::rand() % 0x00f0f0f0;

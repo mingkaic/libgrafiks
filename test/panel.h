@@ -22,18 +22,18 @@ public:
     void test (itester& t, std::vector<glib::ishaper*> liner) const
     {
         t.exec(liner, topleft_, 
-            (size_t) (botright_.x - topleft_.x),
-            (size_t) (botright_.y - topleft_.y));
+            (size_t) (botright_.getX() - topleft_.getX()),
+            (size_t) (botright_.getY() - topleft_.getY()));
     }
 
     size_t get_width (void) const
 	{
-        return (size_t) (botright_.x - topleft_.x);
+        return (size_t) (botright_.getX() - topleft_.getX());
 	}
 
 	size_t get_height (void) const
 	{
-		return botright_.y - topleft_.y;
+		return botright_.getY() - topleft_.getY();
 	}
 
     std::pair<glib::point, glib::point> get_pts (void) const { return std::pair<glib::point, glib::point>(topleft_, botright_); }

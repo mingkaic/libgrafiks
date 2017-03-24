@@ -14,11 +14,17 @@ convex_filler::convex_filler (DRAW draw) : ipolygoner(draw) {}
 
 void convex_filler::draw (const poly_model* model) const
 {
+	// backface culling
+	if (model->cclockwise())
+	{
+		return;
+	}
+
     std::vector<point> vertices = model->ysortindices();
     point top = vertices.front();
     point bot = vertices.back();
-	double topy = top.y;
-    double boty = bot.y;
+	double topy = top.getY();
+    double boty = bot.getY();
     size_t dy = (int) topy - (int) boty + 1;
     std::vector<point> lxs(dy, {TOP, 0, 0});
     std::vector<point> rxs(dy, {0, 0, 0});
@@ -32,9 +38,9 @@ void convex_filler::draw (const poly_model* model) const
         size_t yidx = (int) topy-y;
         if (yidx >= dy) return;
         // left indices goes towards the left
-        if (lxs[yidx].x >= x) lxs[yidx] = p;
+        if (lxs[yidx].getX() >= x) lxs[yidx] = p;
         // right indices goes towards the right
-        if (rxs[yidx].x <= x) rxs[yidx] = p;
+        if (rxs[yidx].getX() <= x) rxs[yidx] = p;
     });
 
     // populate lxs and rxs
@@ -48,29 +54,29 @@ void convex_filler::draw (const poly_model* model) const
 
         // we avoid discontinuations between edges
         // by explicitly entering vertices x coordinate
-        double x = pt.x;
-		int y = pt.y;
+		double x = pt.getX();
+		int y = pt.getY();
 
         size_t yidx = (int) topy - y;
 
-        if (lxs[yidx].x > x) lxs[yidx] = pt;
-        if (rxs[yidx].x < x) rxs[yidx] = pt;
+        if (lxs[yidx].getX() > x) lxs[yidx] = pt;
+        if (rxs[yidx].getX() < x) rxs[yidx] = pt;
 
 		last = pt;
     }
     for (size_t y = 0; y < dy; y++)
     {
-    	int lx = lxs[y].x;
-		int rx = rxs[y].x;
+    	int lx = lxs[y].getX();
+		int rx = rxs[y].getX();
 
-		double dx = rxs[y].x - lxs[y].x;
-    	double dz = rxs[y].z - lxs[y].z;
+		double dx = rxs[y].getX() - lxs[y].getX();
+    	double dz = rxs[y].getZ() - lxs[y].getZ();
 		color_grad dc = rxs[y].basecolor - lxs[y].basecolor;
 
 		double mz = dz / dx;
 		color_grad mc = dc / dx;
 
-		double basez = lxs[y].z;
+		double basez = lxs[y].getZ();
 		color_grad basec = lxs[y].basecolor;
 
         for (int x = lx; x <= rx; x++)

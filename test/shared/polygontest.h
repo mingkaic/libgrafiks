@@ -22,8 +22,8 @@ struct polygon_test : public itester
     {
         std::random_device rd;
         std::mt19937 gen(rd());
-        size_t edgex = topcorner.x;
-        size_t edgey = topcorner.y;
+        size_t edgex = topcorner.getX();
+        size_t edgey = topcorner.getY();
         glib::ishaper* shaper = shapers[0];
 
         switch (scene)
@@ -74,7 +74,7 @@ struct polygon_test : public itester
 						topleft.basecolor = randomColor();
 						botleft.basecolor = randomColor();
 						botright.basecolor = randomColor();
-                        glib::poly_model bottri({topleft, botleft, botright});
+                        glib::poly_model bottri({topleft, botright, botleft});
                         shaper->draw(&toptri);
                         shaper->draw(&bottri);
                     }
@@ -104,7 +104,7 @@ struct polygon_test : public itester
 						topleft.basecolor = randomColor();
 						botleft.basecolor = randomColor();
 						botright.basecolor = randomColor();
-                        glib::poly_model bottri({topleft, botleft, botright});
+						glib::poly_model bottri({topleft, botright, botleft});
                         shaper->draw(&toptri);
                         shaper->draw(&bottri);
                     }

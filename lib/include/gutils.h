@@ -9,6 +9,7 @@
 #include <cmath>
 #include <utility>
 #include <functional>
+#include <iostream>
 
 #ifndef __GLIB_UTIL__
 #define __GLIB_UTIL__
@@ -71,7 +72,7 @@ struct color_grad
 		return (0xff << 24) + (red << 16) + (green << 8) + blue;
 	}
 
-	const color_grad& operator += (color_grad& other)
+	const color_grad& operator += (const color_grad& other)
 	{
 		r += other.r;
 		g += other.g;
@@ -88,6 +89,8 @@ color_grad operator - (const color& lhs, const color& rhs);
 
 color_grad operator / (const color_grad& lhs, double rhs);
 
+color_grad operator * (const color_grad& lhs, double magnitude);
+
 color operator * (const color& lhs, double magnitude);
 
 struct normal
@@ -95,22 +98,43 @@ struct normal
 	normal (void) : x(0), y(0), z(0) {}
 	normal (double x, double y, double z = 0) :
 		x(x), y(y), z(z) {}
+
 	double x;
 	double y;
 	double z;
 };
+
+normal operator - (const normal& a, const normal& b);
+
+double dot (const normal& n1, const normal& n2);
 
 struct point
 {
 	point (void) : x(0), y(0), z(0) {}
 	point (double x, double y, double z = 0) :
 		x(x), y(y), z(z) {}
+	point (double x, double y, double z, double h) :
+		x(x), y(y), z(z), h(h) {}
 
 	double x;
 	double y;
 	double z;
+	double h = 1;
+
+	double getX (void) const { return x / h; }
+	double getY (void) const { return y / h; }
+	double getZ (void) const { return z / h; }
 	normal n;
-	color basecolor = 0xffffffff; // white
+	color basecolor = 0xffffffff; // white todo: make flag value or optional
+};
+
+struct plane
+{
+	plane (normal pt, normal norm) :
+		pt_(pt), norm_(norm) {}
+
+	normal pt_;
+	normal norm_;
 };
 
 point cross (const point& lhs, const point& rhs);

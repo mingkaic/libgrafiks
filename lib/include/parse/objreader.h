@@ -17,7 +17,7 @@ namespace glib
 class obj_reader : public ifreader
 {
 public:
-	obj_reader (std::string path);
+	obj_reader (std::string path, color basecolor);
 	~obj_reader (void);
 	void get_objects (std::vector<poly_model*>& out)
 	{
@@ -37,6 +37,7 @@ private:
 	std::string directory_ = "";
 	std::queue<LEX_TOK> lextok_;
 	std::vector<poly_model*> objects_;
+	color basecolor_;
 };
 
 }

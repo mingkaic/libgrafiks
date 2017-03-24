@@ -23,7 +23,7 @@ std::vector<point> poly_model::ysortindices (void) const
     std::vector<point> ysv = this->vertices_;
     std::sort(ysv.begin(), ysv.end(), [](point pt1, point pt2)
     {
-        return pt1.y > pt2.y;
+        return pt1.getY() > pt2.getY();
     });
     return ysv;
 }
@@ -38,11 +38,11 @@ bool poly_model::cclockwise (void) const
     size_t i = 0;
     for (i = 0; i < nvs - 1; ++i)
     {
-        sum += (this->vertices_[i].x - this->vertices_[i+1].x) *
-                (this->vertices_[i].y + this->vertices_[i+1].y);
+        sum += (this->vertices_[i].getX() - this->vertices_[i+1].getX()) *
+                (this->vertices_[i].getY() + this->vertices_[i+1].getY());
     }
-    sum += (this->vertices_[i].x - this->vertices_[0].x) *
-            (this->vertices_[i].y + this->vertices_[0].y);
+    sum += (this->vertices_[i].getX() - this->vertices_[0].getX()) *
+            (this->vertices_[i].getY() + this->vertices_[0].getY());
     return sum < 0;
 }
 

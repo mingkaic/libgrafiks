@@ -23,6 +23,15 @@ color_grad operator / (const color_grad& lhs, double rhs)
 	};
 }
 
+color_grad operator * (const color_grad& lhs, double magnitude)
+{
+	return color_grad{
+		lhs.r * magnitude,
+		lhs.g * magnitude,
+		lhs.b * magnitude
+	};
+}
+
 color operator * (const color& lhs, double magnitude)
 {
 	return color{
@@ -32,49 +41,59 @@ color operator * (const color& lhs, double magnitude)
 	};
 }
 
+normal operator - (const normal& a, const normal& b)
+{
+	return normal{a.x - b.x, a.y - b.y, a.z - b.z};
+}
+
+double dot (const normal& n1, const normal& n2)
+{
+	return n1.x * n2.x + n1.y * n2.y + n1.z * n2.z;
+}
+
 point cross (const point& lhs, const point& rhs)
 {
 	return {
-		lhs.y * rhs.z - rhs.y * lhs.z,
-		lhs.z * rhs.x - rhs.z * lhs.x,
-		lhs.x *  rhs.y - rhs.x * lhs.y
+		lhs.getY() * rhs.getZ() - rhs.getY() * lhs.getZ(),
+		lhs.getZ() * rhs.getX() - rhs.getZ() * lhs.getX(),
+		lhs.getX() *  rhs.getY() - rhs.getX() * lhs.getY()
 	};
 }
 
 double dot (const point& lhs, const point& rhs)
 {
-	return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
+	return lhs.getX() * rhs.getX() + lhs.getY() * rhs.getY() + lhs.getZ() * rhs.getZ();
 }
 
 point operator * (const point& lhs, const point& rhs)
 {
-	return {lhs.x * rhs.x,
-			lhs.y * rhs.y,
-			lhs.z * rhs.z};
+	return {lhs.getX() * rhs.getX(),
+			lhs.getY() * rhs.getY(),
+			lhs.getZ() * rhs.getZ()};
 }
 
 point operator + (const point& lhs, const point& rhs)
 {
-	return {lhs.x + rhs.x,
-			lhs.y + rhs.y,
-			lhs.z + rhs.z};
+	return {lhs.getX() + rhs.getX(),
+			lhs.getY() + rhs.getY(),
+			lhs.getZ() + rhs.getZ()};
 }
 
 point operator - (const point& lhs, const point& rhs)
 {
-	return {lhs.x - rhs.x,
-			lhs.y - rhs.y,
-			lhs.z - rhs.z};
+	return {lhs.getX() - rhs.getX(),
+			lhs.getY() - rhs.getY(),
+			lhs.getZ() - rhs.getZ()};
 }
 
 bool operator < (const point& lhs, double limit)
 {
-	return lhs.x < limit || lhs.y < limit || lhs.z < limit;
+	return lhs.getX() < limit || lhs.getY() < limit || lhs.getZ() < limit;
 }
 
 inline double norm2(const point& p)
 {
-	return p.x * p.x + p.y * p.y + p.z * p.z;
+	return p.getX() * p.getX() + p.getY() * p.getY() + p.getZ() * p.getZ();
 }
 
 inline double norm( const point& p )
@@ -105,7 +124,7 @@ bool intersection (
 
 void inorder (point& pt1, point& pt2)
 {
-    if (pt1.x > pt2.x)
+    if (pt1.getX() > pt2.getX())
     {
         point buffer = std::move(pt1);
         pt1 = std::move(pt2);
@@ -116,21 +135,21 @@ void inorder (point& pt1, point& pt2)
 double slope (point pt1, point pt2)
 {
     inorder(pt1, pt2);
-    if (pt2.x - pt1.x == 0)
+    if (pt2.getX() - pt1.getX() == 0)
     {
         return std::numeric_limits<double>::max(); // return yuge value
     }
-    return (pt2.y - pt1.y) / (pt2.x - pt1.x);
+    return (pt2.getY() - pt1.getY()) / (pt2.getX() - pt1.getX());
 }
 
 double slope_tangent (point pt1, point pt2)
 {
     inorder(pt1, pt2);
-    if (pt2.y - pt1.y == 0)
+    if (pt2.getY() - pt1.getY() == 0)
     {
         return std::numeric_limits<double>::max(); // return yuge value
     }
-    return (pt2.x - pt1.x) / (pt2.y - pt1.y);
+    return (pt2.getX() - pt1.getX()) / (pt2.getY() - pt1.getY());
 }
 
 void rgb_unpack (unsigned int c, uint8_t& red, uint8_t& green, uint8_t& blue)

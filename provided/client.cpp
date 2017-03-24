@@ -5,7 +5,7 @@
 #define CANVASH 750
 
 Client::Client(Drawable *drawable) :
-	test(new a3test(CANVASW, CANVASH)),
+	test(new a2test(CANVASW, CANVASH)),
 	drawable(drawable) {}
 
 #define BG_COLOR 0xffffffff
@@ -20,7 +20,7 @@ void Client::nextPage() {
 	[this](const panel& p)
 	{
 		std::pair<glib::point, glib::point> pts = p.get_pts();
-		draw_rect(pts.first.x, pts.first.y, pts.second.x, pts.second.y, PANEL_COLOR);
+		draw_rect(pts.first.getX(), pts.first.getY(), pts.second.getX(), pts.second.getY(), PANEL_COLOR);
 	});
 
     pageNumber++;

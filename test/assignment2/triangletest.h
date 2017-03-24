@@ -16,8 +16,8 @@ struct regulartri_test : public itester
 	virtual void exec (std::vector<glib::ishaper*>& shapers, const glib::point& topcorner, size_t width, size_t height)
 	{
 		assert(width >= lineLength_ * 2 && height >= lineLength_ * 2); // length requirement
-		size_t x = topcorner.x + width/2;
-		size_t y = topcorner.y + height/2;
+		size_t x = topcorner.getX() + width/2;
+		size_t y = topcorner.getY() + height/2;
 		glib::ishaper* shaper = shapers[0];
 
 		for (double color : colors_)

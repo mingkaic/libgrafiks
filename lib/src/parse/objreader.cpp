@@ -17,7 +17,8 @@ enum OBJ_TOK
 	FACE
 };
 
-obj_reader::obj_reader (std::string path)
+obj_reader::obj_reader (std::string path, color basecolor) :
+	basecolor_(basecolor)
 {
 	std::ifstream fs(path);
 	tokenize(fs);
@@ -107,20 +108,21 @@ void obj_reader::parse (DRAW drawer)
 				double x = std::atof(this->trim(vals[0], whitespace).data());
 				double y = std::atof(this->trim(vals[1], whitespace).data());
 				double z = std::atof(this->trim(vals[2], whitespace).data());
+				point p(x, y, z);
 				if (nv == 4 || nv == 7)
 				{
-					double h = std::atof(this->trim(vals[3], whitespace).data());
-					x /= h;
-					y /= h;
-					z /= h;
+					p.h = std::atof(this->trim(vals[3], whitespace).data());
 				}
-				point p(x, y, z);
 				if (nv == 6 || nv == 7)
 				{
 					double r = std::atof(this->trim(vals[nv-3], whitespace).data());
 					double g = std::atof(this->trim(vals[nv-2], whitespace).data());
 					double b = std::atof(this->trim(vals[nv-1], whitespace).data());
 					p.basecolor = color((uint8_t) 255 * r, (uint8_t) 255 * g, (uint8_t) 255 * b);
+				}
+				else
+				{
+					p.basecolor = basecolor_;
 				}
 				pts.push_back(p);
 			}

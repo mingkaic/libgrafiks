@@ -14,8 +14,8 @@ struct starburst_test : public itester
     virtual void exec (std::vector<glib::ishaper*>& shapers, const glib::point& topcorner, size_t width, size_t height)
     {
         assert(width >= lineLength_ * 2 && height >= lineLength_ * 2); // length requirement
-        size_t centerx = topcorner.x + width/2;
-        size_t centery = topcorner.y + height/2;
+        size_t centerx = topcorner.getX() + width/2;
+        size_t centery = topcorner.getY() + height/2;
         glib::point origin(centerx, centery);
         std::vector<glib::point> pts = starburst_vertices(centerx, centery, lineLength_, nlines_);
         size_t i = 0;

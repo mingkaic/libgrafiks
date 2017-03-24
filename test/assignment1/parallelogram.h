@@ -11,8 +11,8 @@ struct paralleogram_test : public itester
 
     virtual void exec (std::vector<glib::ishaper*>& shapers, const glib::point& topcorner, size_t width, size_t height)
     {
-        double x = topcorner.x;
-        double y = topcorner.y;
+        double x = topcorner.getX();
+        double y = topcorner.getY();
         for (size_t i = 0; i < nparallel_; i++)
         {
             glib::line_model line0(glib::point(x+20, y+80+i), glib::point(x+150, y+150+i));

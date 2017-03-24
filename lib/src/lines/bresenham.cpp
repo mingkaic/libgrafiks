@@ -24,9 +24,9 @@ void bresen_liner::draw (const line_model* model) const
 	color_grad mc = dc / dx;
 
     point origin = model->get_v(0);
-    double centerx = origin.x;
-    double centery = origin.y;
-	double centerz = origin.z;
+    double centerx = origin.getX();
+    double centery = origin.getY();
+	double centerz = origin.getZ();
 	color_grad centercolor = origin.basecolor;
 
     double twodx = 2*dx;

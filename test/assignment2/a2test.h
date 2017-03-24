@@ -58,17 +58,18 @@ public:
 		size_t pwidth = panels_[0].get_width();
 		size_t pheight = panels_[0].get_height();
 
-		DRAW zbufferdepth =
+		DRAW zbufferdepthred =
 		[this, drawable, pwidth, pheight](int x, int y, int z, unsigned c)
 		{
 			size_t idx = y * width_ + x;
 			if (x > PADDING && y >=PADDING &&
 				x < PADDING + pwidth &&
 				y < PADDING + pheight &&
-				z < zbuffer[idx])
+				z < zbuffer[idx] &&
+				z > 0)
 			{
 				double zz = 1 + (double) z;
-				glib::color cc(c);
+				glib::color cc(0xffff0000);
 				drawable->setPixel(x, y, unsigned(cc * zz));
 				zbuffer[idx] = z;
 			}
@@ -81,7 +82,8 @@ public:
 			if (x > PADDING && y >=PADDING &&
 				x < PADDING + pwidth &&
 				y < PADDING + pheight &&
-				z < zbuffer[idx])
+				z < zbuffer[idx] &&
+				z > 0)
 			{
 				double zz = 1 + (double) z;
 				glib::color cc(0xff00ff00);
@@ -116,14 +118,14 @@ public:
 			case 3: //
 			{
 				std::fill(zbuffer, zbuffer + (width_ * height_), 200);
-				glib::simp_reader reader4(a2test::testdir + "/page4.simp", zbufferdepthgreen);
+				glib::simp_reader reader4(a2test::testdir + "/mypage4.simp", zbufferdepthgreen);
 				reader4.execute({(double)width_/2, (double)height_/2, 200}, pwidth, pheight);
 			}
 				break;
 			case 4: //
 			{
 				std::fill(zbuffer, zbuffer + (width_ * height_), 200);
-				glib::simp_reader reader5(a2test::testdir + "/page5.simp", zbufferdepth);
+				glib::simp_reader reader5(a2test::testdir + "/page5.simp", zbufferdepthred);
 				reader5.execute({(double)width_/2, (double)height_/2, 200}, pwidth, pheight);
 			}
 				break;
@@ -131,21 +133,21 @@ public:
 			case 5:
 			{
 				std::fill(zbuffer, zbuffer + (width_ * height_), 200);
-				glib::simp_reader reader6(a2test::testdir + "/test1.simp", zbufferdepth);
+				glib::simp_reader reader6(a2test::testdir + "/test1.simp", zbufferdepthgreen);
 				reader6.execute({(double)width_/2, (double)height_/2, 200}, pwidth, pheight);
 			}
 				break;
 			case 6:
 			{
 				std::fill(zbuffer, zbuffer + (width_ * height_), 200);
-				glib::simp_reader reader7(a2test::testdir + "/test2.simp", zbufferdepth);
+				glib::simp_reader reader7(a2test::testdir + "/test2.simp", zbufferdepthred);
 				reader7.execute({(double)width_/2, (double)height_/2, 200}, pwidth, pheight);
 			}
 				break;
 			case 7:
 			{
 				std::fill(zbuffer, zbuffer + (width_ * height_), 200);
-				glib::simp_reader reader8(a2test::testdir + "/test3.simp", zbufferdepth);
+				glib::simp_reader reader8(a2test::testdir + "/test3.simp", zbufferdepthgreen);
 				reader8.execute({(double)width_/2, (double)height_/2, 200}, pwidth, pheight);
 			}
 				break;

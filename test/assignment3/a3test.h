@@ -19,10 +19,7 @@ public:
 		srand(time(NULL));
 	}
 
-	~a3test (void)
-	{
-		delete[] zbuffer;
-	}
+	~a3test (void) {}
 
 	virtual void run (size_t testid, Drawable* drawable, PANEL_DRAW panel_drawer) const
 	{
@@ -38,14 +35,12 @@ public:
 					y < PADDING + pheight &&
 					z < zbuffer[idx])
 				{
-					double zz = 1 + (double) z;
-					glib::color cc(0xff00ff00);
-					drawable->setPixel(x, y, unsigned(cc * zz));
+					drawable->setPixel(x, y, c);
 					zbuffer[idx] = z;
 				}
 			};
 
-		std::fill(zbuffer, zbuffer + (width_ * height_), 200);
+		std::fill(zbuffer, zbuffer + (width_ * height_), -1);
 		panel_drawer(this->panels_[0]);
 		glib::simp_reader reader(a3test::simpfile, zbufferdepthgreen);
 		reader.execute({(double)width_/2, (double)height_/2, 200}, pwidth, pheight);

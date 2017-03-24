@@ -25,12 +25,20 @@ public:
 
 	void mul (double& x, double& y, double& z) const;
 
+	void mul (double& x, double& y, double& z, double& h) const;
+
 	// treat as homogenous
 	void mul (const double in[3], double out[3]) const;
 
 	// for homogenous coordinates
 	// out = this • in
 	void h_mul (const double in[4], double out[4]) const;
+};
+
+class camera_transform : public transformation
+{
+public:
+	camera_transform (double near);
 };
 
 class scale : public transformation

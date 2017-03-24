@@ -29,7 +29,13 @@ enum SIMP_TOK
 	SURFACE
 };
 
-simp_reader::simp_reader (std::string path, DRAW drawer)
+simp_reader::simp_reader (std::string path, DRAW drawer,
+	color_grad ambient,
+	color surface,
+	std::shared_ptr<ishaper> goner) :
+	ambient_(ambient),
+	surface_(surface),
+	goner_(goner)
 {
 	size_t nameidx = path.find_last_of('/');
 	if (path.npos != nameidx) {
@@ -43,18 +49,19 @@ simp_reader::simp_reader (std::string path, DRAW drawer)
 
 simp_reader::~simp_reader (void)
 {
-	for (INSTRUCTION i : instructions_)
+	for (INSTRUCTION* i : instructions_)
 	{
-		if (i.owner_ == this || i.owner_ == nullptr)
+		if (i->owner_ == this || i->owner_ == nullptr)
 		{
-			if (i.ismodel_)
+			if (RENDER* r = dynamic_cast<RENDER*>(i))
 			{
-				delete i.render_.model_;
+				delete r->render_.model_;
 			}
-			else
+			else if (TRANSFORM* t = dynamic_cast<TRANSFORM*>(i))
 			{
-				delete i.trans_;
+				delete t->trans_;
 			}
+			delete i;
 		}
 	}
 	for (simp_reader* subs : subreaders_)
@@ -69,69 +76,102 @@ void simp_reader::execute (point centeryon, size_t width, size_t height)
 	std::vector<shape_render> shapes;
 	ctfs.push(transformation());
 
-	for (INSTRUCTION i : instructions_)
+	double halfw = width / 2.0;
+	double halfh = height / 2.0;
+	double end = centeryon.getZ();
+	// orthogonal cs to screen
+	transformation towindow =
+		translate(point{centeryon.getX(), centeryon.getY()}).matmul(
+		scale(point{halfw/SCREEN_DIM, -halfh/SCREEN_DIM, 1}));
+	std::vector<plane> planes =
+	{
+		plane({-100, 0, 0}, {1, 0, 0}), // left
+		plane({100, 0, 0}, {-1, 0, 0}), // right
+		plane({0, -100, 0}, {0, 1, 0}), // down
+		plane({0, 100, 0}, {0, -1, 0}), // up
+		plane({0, 0, 0}, {0, 0, 1}), // front
+		plane({0, 0, end}, {0, 0, -1}) // back
+	};
+	transformation Ktrans;
+	transformation CTMP;
+	double near = 0;
+
+	for (INSTRUCTION* i : instructions_)
 	{
 		assert(false == ctfs.empty()); // ctfs may never be empty
-		while (i.stack_ < ctfs.size() - 1)
+		while (i->stack_ < ctfs.size() - 1)
 		{
 			ctfs.pop();
 		}
-		while (i.stack_ >= ctfs.size())
+		while (i->stack_ >= ctfs.size())
 		{
 			transformation cpy = ctfs.top();
 			ctfs.push(cpy);
 		}
 		transformation& ctf = ctfs.top();
-		if (i.ismodel_)
+		if (RENDER* r = dynamic_cast<RENDER*>(i))
 		{
 			// transform in order of ctf
-			i.render_.model_->transform(ctf);
-			shapes.push_back(i.render_);
+			r->render_.model_->transform(ctf);
+			shapes.push_back(r->render_);
 		}
-		else
+		else if (TRANSFORM* t = dynamic_cast<TRANSFORM*>(i))
 		{
-			ctf = ctf.matmul(*i.trans_);
+			ctf = ctf.matmul(*t->trans_);
+		}
+		else if (CAMERA_INST* cam = dynamic_cast<CAMERA_INST*>(i))
+		{
+			auto dist = [](double val)
+			{
+				return sqrt(1 + val*val);
+			};
+			planes = {
+				plane({cam->left_, 0, 1},
+					  {1/dist(cam->left_), 0, cam->left_/dist(cam->left_)}),
+				plane({cam->right_, 0, 1},
+					  {-1/dist(cam->right_), 0, cam->right_/dist(cam->right_)}),
+				plane({0, cam->down_, 1},
+					  {0, 1/dist(cam->down_), cam->down_/dist(cam->down_)}),
+				plane({0, cam->top_, 1},
+					  {0, -1/dist(cam->top_), cam->top_/dist(cam->top_)}),
+				plane({0, 0, cam->front_},
+					  {0, 0, 1}),
+				plane({0, 0, cam->back_},
+					  {0, 0, -1})
+			};
+			for (plane& p : planes)
+			{
+				ctf.mul(p.pt_.x, p.pt_.y, p.pt_.z);
+				ctf.mul(p.norm_.x, p.norm_.y, p.norm_.z);
+			}
+
+			near = cam->front_;
+			// insert camera transformation
+			Ktrans = camera_transform(near);
+			CTMP = ctf.inverse();
 		}
 	}
 
-	// transform wrt to camera
-	double halfw = width / 2.0;
-	double halfh = height / 2.0;
-	scale s({halfw/SCREEN_DIM, halfh/SCREEN_DIM, 1});
-	translate t({centeryon.x, centeryon.y});
-
-	// after transformation, we have planes:
-	// todo: have a unified representation of planes
-	// for now represent by (point, normal)
-	point hither = centeryon; hither.z = 0;
-	point left = centeryon;
-	left.z /= 2; left.x -= halfw;
-	point right = centeryon;
-	right.z /= 2; right.x += halfw;
-	point bot = centeryon;
-	bot.z /= 2; bot.y -= halfh;
-	point top = centeryon;
-	top.z /= 2; top.y += halfh;
-
-	// scale screen to size of window, then translate origin to center
-	transformation towindow = t.matmul(s);
 	for (shape_render& rends : shapes)
 	{
-		rends.model_->transform(towindow);
-		// clip or cull
-		// for now we will rely on draw to perform model on model clipping via zbuffers
-		// todo: implement model clipping/culling
-		// for now clip wrt to window edge
-		// short circuiting allows us to stop clipping once a model is culled
-		if (!(
-			rends.model_->clip_plane(left, {1, 0, 0}) ||
-			rends.model_->clip_plane(right, {-1, 0, 0}) ||
-			rends.model_->clip_plane(bot, {0, 1, 0}) ||
-			rends.model_->clip_plane(top, {0, -1, 0}) ||
-			rends.model_->clip_plane(hither, {0, 0, 1}) ||
-			rends.model_->clip_plane(centeryon, {0, 0, -1})
-		))
+		if (!rends.model_->clip_planes(planes))
 		{
+			if (near)
+			{
+				rends.model_->transform(CTMP);
+				// cache model's z coord
+				std::vector<point> zs;
+				for (size_t i = 0, n = rends.model_->n_vertices();
+					 i < n; i++)
+				 {
+					point p = rends.model_->get_v(i);
+					zs.push_back({0, 0, p.z * p.z / near, 0});
+				}
+				rends.model_->transform(Ktrans);
+				// add z coord to z
+				rends.model_->add_point(zs);
+			}
+			rends.model_->transform(towindow);
 			rends.run();
 		}
 		// else model is culled
@@ -167,7 +207,7 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = SCALE;
 					// look at format <x>,<y>,<z>
-					lexeme = this->delimited(s, lhqueue, {','}, 2);
+					lexeme = this->delimited(s, lhqueue, {',', ' '}, 2);
 				}
 				else if (this->lookahead(s, lhqueue, "urface"))
 				{
@@ -189,7 +229,7 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = TRANSLATE;
 					// look at format <x>,<y>,<z>
-					lexeme = this->delimited(s, lhqueue, {','}, 2);
+					lexeme = this->delimited(s, lhqueue, {',', ' '}, 2);
 				}
 				break;
 			case 'l': // line
@@ -227,9 +267,9 @@ void simp_reader::tokenize (std::istream& s)
 					}
 				}
 				// this look ahead will jump to next space or end of match if match is wrong
-				else if (this->lookahead(s, lhqueue, "ill")) {
+				else if (this->lookahead(s, lhqueue, "illed")) {
 					token = FILL;
-					lexeme = "fill";
+					lexeme = "filled";
 				}
 				break;
 			case 'c': // camera
@@ -270,32 +310,85 @@ void simp_reader::tokenize (std::istream& s)
 			default: // ignore
 				break;
 		}
-		if (token != INVALID) {
+		if (token != INVALID)
+		{
 			lextok_.push({lexeme, token});
 		}
 	}
 }
 
 point simp_reader::to_point (std::string pts, std::string delim,
-		std::unordered_set<char> ignore) const
+		std::unordered_set<char> ignore,
+		color def_color) const
 {
 // pts should be in format #,#,# or #,#,#,#,#,#
 	std::vector<std::string> vals = this->split(pts, delim);
-	if (vals.size() != 3 && vals.size() != 6)
-	{
-		throw std::exception(); // todo: better exception: invalid syntax
-	}
 	std::vector<double> sfactors;
 	for (std::string sval : vals)
 	{
-		sfactors.push_back(std::atof(this->trim(sval, ignore).data())); // doesn't check for non-numerics
+		std::string propers = this->trim(sval, ignore);
+		if (!propers.empty())
+		{
+			sfactors.push_back(std::atof(propers.data())); // doesn't check for non-numerics
+		}
+	}
+	if (sfactors.size() != 3 && sfactors.size() != 6)
+	{
+		throw std::exception(); // todo: better exception: invalid syntax
 	}
 	point p{sfactors[0], sfactors[1], sfactors[2]};
 	if (sfactors.size() > 3)
 	{
 		p.basecolor = color((uint8_t) 255 * sfactors[3], (uint8_t) 255 * sfactors[4], (uint8_t) 255 * sfactors[5]);
 	}
+	else
+	{
+		p.basecolor = def_color;
+	}
 	return p;
+}
+
+color_grad simp_reader::to_rgb(std::string cs, std::string delim,
+	 std::unordered_set<char> ignore) const
+{
+	std::vector<std::string> rgb = this->split(cs, " ");
+	std::vector<double> sfactors;
+	for (std::string sval : rgb)
+	{
+		std::string propers = this->trim(sval, ignore);
+		if (!propers.empty())
+		{
+			sfactors.push_back(std::atof(propers.data())); // doesn't check for non-numerics
+		}
+	}
+	if (sfactors.size() != 3)
+	{
+		throw std::exception(); // todo: better exception: invalid syntax
+	}
+	return color_grad(sfactors[0], sfactors[1], sfactors[2]);
+}
+
+static std::string remove_comma (std::string s, const std::unordered_set<char>& whitespace)
+{
+	bool whitespaced = false;
+	std::string res = "";
+	for (char c : s)
+	{
+		if (whitespace.end() != whitespace.find(c) || c == ',')
+		{
+			whitespaced = true;
+		}
+		else
+		{
+			if (whitespaced)
+			{
+				res.push_back(' ');
+			}
+			res.push_back(c);
+			whitespaced = false;
+		}
+	}
+	return res;
 }
 
 // instructions are either models or transformations
@@ -304,36 +397,45 @@ void simp_reader::parse (DRAW drawer)
 	std::unordered_set<char> whitespace = whiteset();
 	std::unordered_set<char> filter = whitespace;
 	filter.insert('(');
+	filter.insert(')');
 	filter.insert('"');
 	size_t pushcount = 0;
 	bool polyfill = true;
-	std::shared_ptr<ishaper> liner = std::shared_ptr<ishaper>(new dda_liner(drawer));
-	std::shared_ptr<ishaper> goner = std::shared_ptr<ishaper>(new convex_filler(drawer));
 
-	color surface(0xffffffff);
-	color ambient(0);
-	std::pair<double, double> nearfar;
-	color depth(0);
+	// phong shade with depth
+	DRAW drawerwrapper =
+	[drawer] (int x, int y, int z, unsigned c)
+	{
+		drawer(x, y, z, c);
+	};
+	std::shared_ptr<ishaper> liner = std::shared_ptr<ishaper>(new dda_liner(drawerwrapper));
+	if (nullptr == goner_)
+	{
+		goner_ = std::shared_ptr<ishaper>(new convex_filler(drawerwrapper));
+	}
 
 	while (false == lextok_.empty())
 	{
-		INSTRUCTION inst;
+		INSTRUCTION* inst = nullptr;
 		LEX_TOK lt = lextok_.front();
 		std::string lexeme = lt.first;
+		lexeme = remove_comma(lexeme, whitespace);
 		SIMP_TOK token = (SIMP_TOK) lt.second;
 		lextok_.pop();
 		switch (token)
 		{
 			case PUSH_STACK:
 				pushcount++;
+				inst = new INSTRUCTION(pushcount);
 				break;
 			case POP_STACK:
 				pushcount--;
+				inst = new INSTRUCTION(pushcount);
 				break;
 			case SCALE:
 			{
-				point pt = to_point(lexeme, ",", whitespace);
-				inst = {new scale(pt), pushcount};
+				point pt = to_point(lexeme, " ", whitespace, surface_);
+				inst = new TRANSFORM(new scale(pt), pushcount);
 			}
 				break;
 			case ROTATE: // lexeme should be in format [X Y Z],#
@@ -345,13 +447,13 @@ void simp_reader::parse (DRAW drawer)
 				}
 				char axis = this->trim(vals[0], whitespace)[0];
 				double degrees = std::atof(this->trim(vals[1], whitespace).data()); // doesn't check for non-numerics
-				inst = {new rotate(axis, degrees), pushcount};
+				inst = new TRANSFORM(new rotate(axis, degrees), pushcount);
 			}
 				break;
 			case TRANSLATE:
 			{
-				point pt = to_point(lexeme, ",", whitespace);
-				inst = {new translate(pt), pushcount};
+				point pt = to_point(lexeme, " ", whitespace, surface_);
+				inst = new TRANSFORM(new translate(pt), pushcount);
 			}
 				break;
 			case LINE:
@@ -363,9 +465,9 @@ void simp_reader::parse (DRAW drawer)
 				}
 
 				line_model* line = new line_model(
-					to_point(pts[0], ",", filter),
-					to_point(pts[1], ",", filter));
-				inst = {line, liner, pushcount};
+					to_point(pts[0], " ", filter, surface_),
+					to_point(pts[1], " ", filter, surface_));
+				inst = new RENDER(line, liner, pushcount);
 			}
 				break;
 			case POLYGON:
@@ -376,12 +478,12 @@ void simp_reader::parse (DRAW drawer)
 					throw std::exception(); // todo: better exception: invalid syntax
 				}
                 std::vector<point> respts = {
-                    to_point(pts[0], ",", filter),
-                    to_point(pts[1], ",", filter),
-                    to_point(pts[2], ",", filter)
+                    to_point(pts[0], " ", filter, surface_),
+                    to_point(pts[1], " ", filter, surface_),
+                    to_point(pts[2], " ", filter, surface_)
                 };
                 poly_model* poly = new poly_model(respts);
-				inst = {poly, goner, pushcount};
+				inst = new RENDER(poly, goner_, pushcount);
 			}
 				break;
 			case FILE:
@@ -389,20 +491,21 @@ void simp_reader::parse (DRAW drawer)
 				std::string f = this->trim(lexeme, filter);
 				f += ".simp";
 				// read and parse f
-				simp_reader* reader = new simp_reader(directory_ + "/" + f, drawer);
+				simp_reader* reader = new simp_reader(directory_ + "/" + f,
+					drawerwrapper, ambient_, surface_, goner_);
 				reader->get_instructions(
-				[this, pushcount](INSTRUCTION i) {
-					i.stack_ += pushcount;
+				[this, pushcount](INSTRUCTION* i) {
+					i->stack_ += pushcount;
 					instructions_.push_back(i);
 				});
 				subreaders_.push_back(reader);
 			}
 				break;
 			case WIRE:
-				goner = std::shared_ptr<ishaper>(new convex_wirer(drawer));
+				goner_ = std::shared_ptr<ishaper>(new convex_wirer(drawerwrapper));
 				break;
 			case FILL:
-				goner = std::shared_ptr<ishaper>(new convex_filler(drawer));
+				goner_ = std::shared_ptr<ishaper>(new convex_filler(drawerwrapper));
 				break;
 			case CAMERA:
 			{
@@ -418,8 +521,8 @@ void simp_reader::parse (DRAW drawer)
 				double yhigh = std::atof(this->trim(vals[3], whitespace).data());
 				double hither = std::atof(this->trim(vals[4], whitespace).data());
 				double yon = std::atof(this->trim(vals[5], whitespace).data());
-				// todo: define transformation (special)
 
+				inst = new CAMERA_INST(xlow, xhigh, ylow, yhigh, hither, yon, pushcount);
 			}
 				break;
 			case OBJ:
@@ -427,16 +530,16 @@ void simp_reader::parse (DRAW drawer)
 				std::vector<poly_model*> objs;
 				std::string f = this->trim(lexeme, filter);
 				f += ".obj";
-				obj_reader reader(directory_ + "/" + f);
+				obj_reader reader(directory_ + "/" + f, surface_);
 				reader.get_objects(objs);
 				if (!objs.empty())
 				{
 					auto it = objs.begin();
-					inst = {*it, goner, pushcount};
+					inst = new RENDER(*it, goner_, pushcount);
 					it++;
 					for (auto et = objs.end(); it != et; it++)
 					{
-						instructions_.push_back({*it, goner, pushcount});
+						instructions_.push_back(new RENDER(*it, goner_, pushcount));
 					}
 				}
 			}
@@ -444,66 +547,76 @@ void simp_reader::parse (DRAW drawer)
 			case AMBIENT:
 			{
 				// expect format: (<r>,<g>,<b>)
-				std::vector<std::string> rgb = this->split(lexeme, ",");
-				if (rgb.size() != 3)
-				{
-					throw std::exception(); // todo: better exception: invalid syntax
-				}
-				double r = std::atof(this->trim(rgb[0], whitespace).data());
-				double g = std::atof(this->trim(rgb[1], whitespace).data());
-				double b = std::atof(this->trim(rgb[2], whitespace).data());
-				ambient = (255*r, 255*g, 255*b);
+				ambient_ = to_rgb(lexeme, " ", filter);
 			}
 				break;
 			case DEPTH:
 			{
 				// expect format: <near> <far> (<r>,<g>,<b>)
-				std::vector<std::string> vals = this->split(lexeme, " ");
-				size_t nv = vals.size();
-				if (nv < 3)
+				std::vector<std::string> nfc = this->split(lexeme, "(");
+				if (nfc.size() != 2)
+				{
+					throw std::exception(); // todo: better exception: invalid syntax
+				}
+				std::vector<std::string> vals = this->split(nfc[0], " ");
+				if (vals.size() != 2)
 				{
 					throw std::exception(); // todo: better exception: invalid syntax
 				}
 				double near = std::atof(this->trim(vals[0], whitespace).data());
 				double far = std::atof(this->trim(vals[1], whitespace).data());
-				std::string rgbs = "";
-				for (size_t i = 2; i < nv; i++)
+				color_grad cg = to_rgb(nfc[1], " ", filter);
+				color depth(255*cg.r, 255*cg.g, 255*cg.b);
+				drawerwrapper =
+				[near, far, depth, drawer] (int x, int y, int z, unsigned c)
 				{
-					rgbs += vals[i];
-				}
-				std::vector<std::string> rgb = this->split(rgbs, ",");
-				if (rgb.size() != 3)
-				{
-					throw std::exception(); // todo: better exception: invalid syntax
-				}
-				double r = std::atof(this->trim(rgb[0], whitespace).data());
-				double g = std::atof(this->trim(rgb[1], whitespace).data());
-				double b = std::atof(this->trim(rgb[2], whitespace).data());
-				depth = (255*r, 255*g, 255*b);
-				nearfar = {near, far};
+					assert(far >= near);
+					if (z < near || far == near)
+					{
+						drawer(x, y, z, c);
+					}
+					else if (z > far)
+					{
+						drawer(x, y, z, (unsigned)depth);
+					}
+					else
+					{
+						color_grad cc(c);
+						double fog = (far - z) / (far - near);
+						double invfog = 1 - fog;
+						cc.r = fog * cc.r + invfog * depth.r;
+						cc.g = fog * cc.g + invfog * depth.g;
+						cc.b = fog * cc.b + invfog * depth.b;
+						drawer(x, y, z, (unsigned)cc);
+					}
+				};
 			}
+				break;
 			case SURFACE:
 			{
 				// expect format: (<r>,<g>,<b>)
-				std::vector<std::string> rgb = this->split(lexeme, ",");
-				if (rgb.size() != 3)
-				{
-					throw std::exception(); // todo: better exception: invalid syntax
-				}
-				double r = std::atof(this->trim(rgb[0], whitespace).data());
-				double g = std::atof(this->trim(rgb[1], whitespace).data());
-				double b = std::atof(this->trim(rgb[2], whitespace).data());
-				surface = (255*r, 255*g, 255*b);
+				color_grad cg = to_rgb(lexeme, " ", filter);
+				surface_ = color(255*cg.r, 255*cg.g, 255*cg.b);
 			}
 				break;
 			default: // ignore INVALID
 				break;
 		}
-		if (inst.ismodel_)
+		if (inst)
 		{
-			// todo: add ambience, surface, nearfar, depth to model
+			if (RENDER* r = dynamic_cast<RENDER*>(inst))
+			{
+				// gaurad shade with ambience
+				r->render_.model_->colorpoints(
+				[this](color& c)
+				{
+					c.r *= ambient_.r;
+					c.g *= ambient_.g;
+					c.b *= ambient_.b;
+				});
+			}
+			instructions_.push_back(inst);
 		}
-		instructions_.push_back(inst);
 	}
 }
 

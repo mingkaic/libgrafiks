@@ -26,9 +26,9 @@ void dda_liner::draw (const line_model* model) const
     double m = dy / dx;
 
     point origin = model->get_v(0);
-    double centerx = origin.x;
-    double centery = origin.y;
-	double centerz = origin.z;
+    double centerx = origin.getX();
+    double centery = origin.getY();
+	double centerz = origin.getZ();
 	color_grad centercolor = origin.basecolor;
 
     double diff = centerx - std::round(centerx);
