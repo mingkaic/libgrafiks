@@ -52,7 +52,10 @@ public:
 		for (size_t i = 0;
 			i < n; i++)
 		{
-			vertices_[i] = pts[i] + vertices_[i];
+			vertices_[i].x = pts[i].x + vertices_[i].x;
+			vertices_[i].y = pts[i].y + vertices_[i].y;
+			vertices_[i].z = pts[i].z + vertices_[i].z;
+			vertices_[i].h = pts[i].h + vertices_[i].h;
 		}
 	}
 

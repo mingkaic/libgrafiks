@@ -5,8 +5,23 @@
 #define CANVASH 750
 
 Client::Client(Drawable *drawable) :
-	test(new a2test(CANVASW, CANVASH)),
-	drawable(drawable) {}
+	drawable(drawable)
+{
+	switch (TESTNUMBER)
+	{
+		case 1:
+			test = new a1test(CANVASW, CANVASH);
+			break;
+		case 2:
+			test = new a2test(CANVASW, CANVASH);
+			break;
+		case 3:
+			test = new a3test(CANVASW, CANVASH);
+			break;
+		default:
+			break;
+	}
+}
 
 #define BG_COLOR 0xffffffff
 #define PANEL_COLOR 0x00000000

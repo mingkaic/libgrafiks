@@ -70,11 +70,11 @@ struct polygon_test : public itester
 						topleft.basecolor = randomColor();
 						topright.basecolor = randomColor();
 						botright.basecolor = randomColor();
-                        glib::poly_model toptri({topleft, topright, botright});
+                        glib::poly_model toptri({topleft, botright, topright});
 						topleft.basecolor = randomColor();
 						botleft.basecolor = randomColor();
 						botright.basecolor = randomColor();
-                        glib::poly_model bottri({topleft, botright, botleft});
+                        glib::poly_model bottri({topleft, botleft, botright});
                         shaper->draw(&toptri);
                         shaper->draw(&bottri);
                     }
@@ -100,11 +100,11 @@ struct polygon_test : public itester
 						topleft.basecolor = randomColor();
 						topright.basecolor = randomColor();
 						botright.basecolor = randomColor();
-                        glib::poly_model toptri({topleft, topright, botright});
+						glib::poly_model toptri({topleft, botright, topright});
 						topleft.basecolor = randomColor();
 						botleft.basecolor = randomColor();
 						botright.basecolor = randomColor();
-						glib::poly_model bottri({topleft, botright, botleft});
+						glib::poly_model bottri({topleft, botleft, botright});
                         shaper->draw(&toptri);
                         shaper->draw(&bottri);
                     }

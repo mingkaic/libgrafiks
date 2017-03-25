@@ -39,17 +39,17 @@ line_model::line_model (point a, point b)
 
 double line_model::dx (void) const
 {
-    return vertices_[1].x - vertices_[0].x;
+    return vertices_[1].getX() - vertices_[0].getX();
 }
 
 double line_model::dy (void) const
 {
-    return vertices_[1].y - vertices_[0].y;
+    return vertices_[1].getY() - vertices_[0].getY();
 }
 
 double line_model::dz (void) const
 {
-	return vertices_[1].z - vertices_[0].z;
+	return vertices_[1].getZ() - vertices_[0].getZ();
 }
 
 color_grad line_model::dc (void) const

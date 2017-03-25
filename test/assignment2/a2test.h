@@ -66,9 +66,9 @@ public:
 				x < PADDING + pwidth &&
 				y < PADDING + pheight &&
 				z < zbuffer[idx] &&
-				z > 0)
+				z >= 0)
 			{
-				double zz = 1 + (double) z;
+				double zz = (200.0-z)/200;
 				glib::color cc(0xffff0000);
 				drawable->setPixel(x, y, unsigned(cc * zz));
 				zbuffer[idx] = z;
@@ -83,9 +83,9 @@ public:
 				x < PADDING + pwidth &&
 				y < PADDING + pheight &&
 				z < zbuffer[idx] &&
-				z > 0)
+				z >= 0)
 			{
-				double zz = 1 + (double) z;
+				double zz = (200.0-z)/200;
 				glib::color cc(0xff00ff00);
 				drawable->setPixel(x, y, unsigned(cc * zz));
 				zbuffer[idx] = z;

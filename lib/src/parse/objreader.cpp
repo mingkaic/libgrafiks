@@ -82,6 +82,21 @@ void obj_reader::tokenize (std::istream& s)
 	}
 }
 
+std::vector<double> obj_reader::factors (std::string lexeme, const std::unordered_set<char>& ignore) const
+{
+	std::vector<std::string> vals = this->split(lexeme, " ");
+	std::vector<double> sfactors;
+	for (std::string sval : vals)
+	{
+		std::string propers = this->trim(sval, ignore);
+		if (!propers.empty())
+		{
+			sfactors.push_back(std::atof(propers.data())); // doesn't check for non-numerics
+		}
+	}
+	return sfactors;
+}
+
 // instructions are either models or transformations
 void obj_reader::parse (DRAW drawer)
 {
@@ -99,25 +114,25 @@ void obj_reader::parse (DRAW drawer)
 		{
 			case VERTEX:
 			{
-				std::vector<std::string> vals = this->split(lexeme, " ");
-				size_t nv = vals.size();
+				std::vector<double> sfactors = factors(lexeme, whitespace);
+				size_t nv = sfactors.size();
 				if (nv != 3 && nv != 4 && nv != 6 && nv != 7)
 				{
 					throw std::exception(); // todo: better exception: invalid syntax
 				}
-				double x = std::atof(this->trim(vals[0], whitespace).data());
-				double y = std::atof(this->trim(vals[1], whitespace).data());
-				double z = std::atof(this->trim(vals[2], whitespace).data());
+				double x = sfactors[0];
+				double y = sfactors[1];
+				double z = sfactors[2];
 				point p(x, y, z);
 				if (nv == 4 || nv == 7)
 				{
-					p.h = std::atof(this->trim(vals[3], whitespace).data());
+					p.h = sfactors[3];
 				}
 				if (nv == 6 || nv == 7)
 				{
-					double r = std::atof(this->trim(vals[nv-3], whitespace).data());
-					double g = std::atof(this->trim(vals[nv-2], whitespace).data());
-					double b = std::atof(this->trim(vals[nv-1], whitespace).data());
+					double r = sfactors[nv-3];
+					double g = sfactors[nv-2];
+					double b = sfactors[nv-1];
 					p.basecolor = color((uint8_t) 255 * r, (uint8_t) 255 * g, (uint8_t) 255 * b);
 				}
 				else
@@ -129,15 +144,15 @@ void obj_reader::parse (DRAW drawer)
 				break;
 			case VERTEX_NORMAL:
 			{
-				std::vector<std::string> vals = this->split(lexeme, " ");
-				size_t nv = vals.size();
+				std::vector<double> sfactors = factors(lexeme, whitespace);
+				size_t nv = sfactors.size();
 				if (nv != 3)
 				{
 					throw std::exception(); // todo: better exception: invalid syntax
 				}
-				double x = std::atof(this->trim(vals[0], whitespace).data());
-				double y = std::atof(this->trim(vals[1], whitespace).data());
-				double z = std::atof(this->trim(vals[2], whitespace).data());
+				double x = sfactors[0];
+				double y = sfactors[1];
+				double z = sfactors[2];
 				norms.push_back(normal(x, y, z));
 			}
 				break;
@@ -154,30 +169,34 @@ void obj_reader::parse (DRAW drawer)
 				// each val can be <num> or <num>//<num>
 				for (std::string val : vals)
 				{
-					std::vector<std::string> nums = this->split(val, "/");
-					int vidx = std::atoi(this->trim(nums[0], whitespace).data());
-					point p;
-					if (vidx < 0)
+					std::string propers = this->trim(val, whitespace);
+					if (!propers.empty())
 					{
-						p = pts[pts.size() + vidx];
-					}
-					else
-					{
-						p = pts[vidx];
-					}
-					if (nums.size() == 2)
-					{
-						int nidx = std::atoi(this->trim(nums[2], whitespace).data());
-						if (nidx < 0)
+						std::vector<std::string> nums = this->split(propers, "/");
+						int vidx = std::atoi(this->trim(nums[0], whitespace).data());
+						point p;
+						if (vidx < 0)
 						{
-							p.n = norms[norms.size() + nidx];
+							p = pts[pts.size() + vidx];
 						}
 						else
 						{
-							p.n = norms[nidx];
+							p = pts[vidx-1];
 						}
+						if (nums.size() >= 2)
+						{
+							int nidx = std::atoi(this->trim(nums.back(), whitespace).data());
+							if (nidx < 0)
+							{
+								p.n = norms[norms.size() + nidx];
+							}
+							else
+							{
+								p.n = norms[nidx];
+							}
+						}
+						vts.push_back(p);
 					}
-					vts.push_back(p);
 				}
 				// triangular points to avoid concave faces
 				point& first = vts[0];

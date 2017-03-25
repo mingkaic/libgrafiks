@@ -44,7 +44,7 @@ struct regulartri_test : public itester
 			p2.basecolor = base;
 			p3.basecolor = base;
 
-			glib::poly_model poly({p1, p2, p3});
+			glib::poly_model poly({p3, p2, p1});
 			shaper->draw(&poly);
 		}
 	}

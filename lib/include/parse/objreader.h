@@ -33,8 +33,9 @@ protected:
 	virtual void parse (DRAW drawer);
 
 private:
+	std::vector<double> factors (std::string lexeme, const std::unordered_set<char>& ignore) const;
+
 #define LEX_TOK std::pair<std::string, size_t>
-	std::string directory_ = "";
 	std::queue<LEX_TOK> lextok_;
 	std::vector<poly_model*> objects_;
 	color basecolor_;

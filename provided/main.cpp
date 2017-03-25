@@ -20,8 +20,17 @@ int main(int argc, char *argv[])
     std::cmatch cm;
     if (argc > 1)
     {
-//		a3test::simpfile = argv[1];
-        a2test::testdir = argv[1];
+        switch (TESTNUMBER)
+        {
+            case 2:
+                a2test::testdir = argv[1];
+                break;
+            case 3:
+        		a3test::simpfile = argv[1];
+                break;
+            default:
+                break;
+        }
     }
 
     QApplication app(argc, argv);   // because it's a Qt application

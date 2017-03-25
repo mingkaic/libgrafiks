@@ -94,7 +94,7 @@ void simp_reader::execute (point centeryon, size_t width, size_t height)
 	};
 	transformation Ktrans;
 	transformation CTMP;
-	double near = 0;
+	double near = -1;
 
 	for (INSTRUCTION* i : instructions_)
 	{
@@ -126,18 +126,12 @@ void simp_reader::execute (point centeryon, size_t width, size_t height)
 				return sqrt(1 + val*val);
 			};
 			planes = {
-				plane({cam->left_, 0, 1},
-					  {1/dist(cam->left_), 0, cam->left_/dist(cam->left_)}),
-				plane({cam->right_, 0, 1},
-					  {-1/dist(cam->right_), 0, cam->right_/dist(cam->right_)}),
-				plane({0, cam->down_, 1},
-					  {0, 1/dist(cam->down_), cam->down_/dist(cam->down_)}),
-				plane({0, cam->top_, 1},
-					  {0, -1/dist(cam->top_), cam->top_/dist(cam->top_)}),
-				plane({0, 0, cam->front_},
-					  {0, 0, 1}),
-				plane({0, 0, cam->back_},
-					  {0, 0, -1})
+				plane({0, 0, 0}, {1/dist(cam->left_), 0, std::abs(cam->left_)/dist(cam->left_)}),
+				plane({0, 0, 0}, {-1/dist(cam->right_), 0, std::abs(cam->right_)/dist(cam->right_)}),
+				plane({0, 0, 0}, {0, 1/dist(cam->down_), std::abs(cam->down_)/dist(cam->down_)}),
+				plane({0, 0, 0}, {0, -1/dist(cam->top_), std::abs(cam->top_)/dist(cam->top_)}),
+				plane({0, 0, cam->front_}, {0, 0, 1}),
+				plane({0, 0, cam->back_}, {0, 0, -1})
 			};
 			for (plane& p : planes)
 			{
@@ -156,7 +150,7 @@ void simp_reader::execute (point centeryon, size_t width, size_t height)
 	{
 		if (!rends.model_->clip_planes(planes))
 		{
-			if (near)
+			if (near >= 0)
 			{
 				rends.model_->transform(CTMP);
 				// cache model's z coord

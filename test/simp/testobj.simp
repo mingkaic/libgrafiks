@@ -1,1 +1,6 @@
+ambient (1, 1, 1)
+camera -1.2 -1.2 1.2 1.2 1.2 200
+
+translate 0, 0, 100
+scale 10, 10, 10
 obj "airboat"

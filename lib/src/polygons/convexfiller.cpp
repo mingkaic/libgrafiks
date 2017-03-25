@@ -15,7 +15,7 @@ convex_filler::convex_filler (DRAW draw) : ipolygoner(draw) {}
 void convex_filler::draw (const poly_model* model) const
 {
 	// backface culling
-	if (model->cclockwise())
+	if (!model->cclockwise())
 	{
 		return;
 	}
