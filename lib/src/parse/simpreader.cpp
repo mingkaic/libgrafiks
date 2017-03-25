@@ -80,9 +80,8 @@ void simp_reader::execute (point centeryon, size_t width, size_t height)
 	double halfh = height / 2.0;
 	double end = centeryon.getZ();
 	// orthogonal cs to screen
-	transformation towindow =
-		translate(point{centeryon.getX(), centeryon.getY()}).matmul(
-		scale(point{halfw/SCREEN_DIM, -halfh/SCREEN_DIM, 1}));
+	transformation towindow = scale(point{halfw/SCREEN_DIM, -halfh/SCREEN_DIM, 1});
+
 	std::vector<plane> planes =
 	{
 		plane({-100, 0, 0}, {1, 0, 0}), // left
@@ -94,7 +93,7 @@ void simp_reader::execute (point centeryon, size_t width, size_t height)
 	};
 	transformation Ktrans;
 	transformation CTMP;
-	double near = -1;
+	bool cam_proj = false;
 
 	for (INSTRUCTION* i : instructions_)
 	{
@@ -139,27 +138,32 @@ void simp_reader::execute (point centeryon, size_t width, size_t height)
 				ctf.mul(p.norm_.x, p.norm_.y, p.norm_.z);
 			}
 
-			near = cam->front_;
 			// insert camera transformation
-			Ktrans = camera_transform(near);
+			Ktrans = camera_transform(1);
 			CTMP = ctf.inverse();
+			// everything's projected to z=1 plane
+			double planewidthx = (cam->right_ - cam->left_)/2;
+			double planewidthy = (cam->top_ - cam->down_)/2;
+			towindow = scale(point{halfw/planewidthx, -halfh/planewidthy, 1});
+			cam_proj = true;
 		}
 	}
 
+	towindow = translate(point{centeryon.getX(), centeryon.getY()}).matmul(towindow);
 	for (shape_render& rends : shapes)
 	{
 		if (!rends.model_->clip_planes(planes))
 		{
-			if (near >= 0)
+			if (cam_proj)
 			{
 				rends.model_->transform(CTMP);
 				// cache model's z coord
 				std::vector<point> zs;
 				for (size_t i = 0, n = rends.model_->n_vertices();
 					 i < n; i++)
-				 {
+				{
 					point p = rends.model_->get_v(i);
-					zs.push_back({0, 0, p.z * p.z / near, 0});
+					zs.push_back({0, 0, p.z * p.z, 0});
 				}
 				rends.model_->transform(Ktrans);
 				// add z coord to z
@@ -407,6 +411,7 @@ void simp_reader::parse (DRAW drawer)
 	{
 		goner_ = std::shared_ptr<ishaper>(new convex_filler(drawerwrapper));
 	}
+	bool is_fill = true;
 
 	while (false == lextok_.empty())
 	{
@@ -496,9 +501,11 @@ void simp_reader::parse (DRAW drawer)
 			}
 				break;
 			case WIRE:
+				is_fill = false;
 				goner_ = std::shared_ptr<ishaper>(new convex_wirer(drawerwrapper));
 				break;
 			case FILL:
+				is_fill = true;
 				goner_ = std::shared_ptr<ishaper>(new convex_filler(drawerwrapper));
 				break;
 			case CAMERA:
@@ -584,6 +591,14 @@ void simp_reader::parse (DRAW drawer)
 						drawer(x, y, z, (unsigned)cc);
 					}
 				};
+				if (is_fill)
+				{
+					goner_ = std::shared_ptr<ishaper>(new convex_filler(drawerwrapper));
+				}
+				else
+				{
+					goner_ = std::shared_ptr<ishaper>(new convex_wirer(drawerwrapper));
+				}
 			}
 				break;
 			case SURFACE:

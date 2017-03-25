@@ -1,6 +1,9 @@
 ambient (1, 1, 1)
-camera -1.2 -1.2 1.2 1.2 1.2 200
+surface (0.5, 0.5, 0)
+depth 0 40 (0, 0, 0)
+camera -1.2 -1.2 1.2 1.2 0.1 200
 
-translate 0, 0, 100
-scale 10, 10, 10
+translate 0, 0, 20
+rotate Y -45
+rotate X 20
 obj "airboat"
