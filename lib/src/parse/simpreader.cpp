@@ -37,11 +37,14 @@ simp_reader::simp_reader (std::string path, DRAW drawer,
 	surface_(surface),
 	goner_(goner)
 {
-	size_t nameidx = path.find_last_of('/');
+    size_t nameidx = path.find_last_of('/');
+    if (path.npos == nameidx) {
+        nameidx = path.find_last_of('\\');
+    }
 	if (path.npos != nameidx) {
 		directory_ = path.substr(0, nameidx);
 	}
-	std::ifstream fs(path);
+    std::ifstream fs(path);
 	tokenize(fs);
 	parse(drawer);
 	fs.close();
@@ -109,7 +112,7 @@ void simp_reader::execute (point centeryon, size_t width, size_t height)
 		}
 		transformation& ctf = ctfs.top();
 		if (RENDER* r = dynamic_cast<RENDER*>(i))
-		{
+        {
 			// transform in order of ctf
 			r->render_.model_->transform(ctf);
 			shapes.push_back(r->render_);
@@ -149,7 +152,7 @@ void simp_reader::execute (point centeryon, size_t width, size_t height)
 		}
 	}
 
-	towindow = translate(point{centeryon.getX(), centeryon.getY()}).matmul(towindow);
+    towindow = translate(point{centeryon.getX(), centeryon.getY()}).matmul(towindow);
 	for (shape_render& rends : shapes)
 	{
 		if (!rends.model_->clip_planes(planes))
@@ -309,10 +312,10 @@ void simp_reader::tokenize (std::istream& s)
 				break;
 		}
 		if (token != INVALID)
-		{
+        {
 			lextok_.push({lexeme, token});
 		}
-	}
+    }
 }
 
 point simp_reader::to_point (std::string pts, std::string delim,
@@ -420,9 +423,9 @@ void simp_reader::parse (DRAW drawer)
 		std::string lexeme = lt.first;
 		lexeme = remove_comma(lexeme, whitespace);
 		SIMP_TOK token = (SIMP_TOK) lt.second;
-		lextok_.pop();
+        lextok_.pop();
 		switch (token)
-		{
+        {
 			case PUSH_STACK:
 				pushcount++;
 				inst = new INSTRUCTION(pushcount);
@@ -530,19 +533,19 @@ void simp_reader::parse (DRAW drawer)
 			{
 				std::vector<poly_model*> objs;
 				std::string f = this->trim(lexeme, filter);
-				f += ".obj";
-				obj_reader reader(directory_ + "/" + f, surface_);
-				reader.get_objects(objs);
-				if (!objs.empty())
-				{
-					auto it = objs.begin();
-					inst = new RENDER(*it, goner_, pushcount);
-					it++;
-					for (auto et = objs.end(); it != et; it++)
-					{
-						instructions_.push_back(new RENDER(*it, goner_, pushcount));
-					}
-				}
+                f += ".obj";
+                obj_reader reader(directory_ + "/" + f, surface_);
+                reader.get_objects(objs);
+                if (!objs.empty())
+                {
+                    auto it = objs.begin();
+                    inst = new RENDER(*it, goner_, pushcount);
+                    it++;
+                    for (auto et = objs.end(); it != et; it++)
+                    {
+                        instructions_.push_back(new RENDER(*it, goner_, pushcount));
+                    }
+                }
 			}
 				break;
 			case AMBIENT:

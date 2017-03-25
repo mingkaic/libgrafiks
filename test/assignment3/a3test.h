@@ -22,7 +22,7 @@ public:
 	~a3test (void) {}
 
 	virtual void run (size_t testid, Drawable* drawable, PANEL_DRAW panel_drawer) const
-	{
+    {
 		size_t pwidth = panels_[0].get_width();
 		size_t pheight = panels_[0].get_height();
 
@@ -41,7 +41,7 @@ public:
 			};
 
 		std::fill(zbuffer, zbuffer + (width_ * height_), -1);
-		panel_drawer(this->panels_[0]);
+        panel_drawer(this->panels_[0]);
 		glib::simp_reader reader(a3test::simpfile, zbufferdepthgreen);
 		reader.execute({(double)width_/2, (double)height_/2, 200}, pwidth, pheight);
 		drawable->updateScreen();

@@ -30,7 +30,7 @@ protected:
 		return {' ', '\n', '\t', '\r'};
 	}
 	virtual void tokenize (std::istream& s);
-	virtual void parse (DRAW drawer);
+    virtual void parse (DRAW drawer);
 
 private:
 	std::vector<double> factors (std::string lexeme, const std::unordered_set<char>& ignore) const;

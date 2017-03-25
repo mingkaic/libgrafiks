@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
                 a2test::testdir = argv[1];
                 break;
             case 3:
-        		a3test::simpfile = argv[1];
+                a3test::simpfile = argv[1];
                 break;
             default:
                 break;

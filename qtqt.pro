@@ -22,6 +22,7 @@ SOURCES += provided/main.cpp\
     lib/src/polygons/convexwirer.cpp \
     lib/src/polygons/polygon.cpp \
     lib/src/parse/ifreader.cpp \
+    lib/src/parse/objreader.cpp \
     lib/src/parse/simpreader.cpp \
     lib/src/models/transformation.cpp \
     lib/src/lines/antialias.cpp \
@@ -51,6 +52,7 @@ HEADERS  += \
     lib/include/polygons/convexwirer.h \
     lib/include/polygons/polygon.h \
     lib/include/parse/ifreader.h \
+    lib/include/parse/objreader.h \
     lib/include/parse/simpreader.h \
     lib/include/lines/antialias.h \
     lib/include/lines/bresenham.h \
@@ -58,7 +60,8 @@ HEADERS  += \
     lib/include/lines/line.h \
     lib/include/models/matrix.h \
     lib/include/models/model.h \
-    lib/include/models/transformation.h
+    lib/include/models/transformation.h \
+    test/assignment3/a3test.h
 
 DISTFILES += \
     lib/src/models/matrix.ipp \

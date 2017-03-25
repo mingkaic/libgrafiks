@@ -30,7 +30,7 @@ void Client::nextPage() {
     static int pageNumber = 0;
     std::cout << "PageNumber " << pageNumber << std::endl;
 
-	draw_rect(0, 0, CANVASW, CANVASH, BG_COLOR);
+    draw_rect(0, 0, CANVASW, CANVASH, BG_COLOR);
 	test->run(pageNumber, drawable,
 	[this](const panel& p)
 	{
