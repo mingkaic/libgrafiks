@@ -42,7 +42,8 @@ public:
 
 		std::fill(zbuffer, zbuffer + (width_ * height_), -1);
         panel_drawer(this->panels_[0]);
-		glib::simp_reader reader(a3test::simpfile, zbufferdepthgreen);
+		glib::simp_reader reader(a3test::simpfile);
+		reader.parse(zbufferdepthgreen);
 		reader.execute({(double)width_/2, (double)height_/2, 200}, pwidth, pheight);
 		drawable->updateScreen();
 	}

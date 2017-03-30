@@ -26,16 +26,14 @@ enum SIMP_TOK
 	OBJ,
 	AMBIENT,
 	DEPTH,
-	SURFACE
+	SURFACE,
+	LIGHT,
+	PHONG,
+	GOURAUD,
+	FLAT
 };
 
-simp_reader::simp_reader (std::string path, DRAW drawer,
-	color_grad ambient,
-	color surface,
-	std::shared_ptr<ishaper> goner) :
-	ambient_(ambient),
-	surface_(surface),
-	goner_(goner)
+simp_reader::simp_reader (std::string path)
 {
     size_t nameidx = path.find_last_of('/');
     if (path.npos == nameidx) {
@@ -46,7 +44,6 @@ simp_reader::simp_reader (std::string path, DRAW drawer,
 	}
     std::ifstream fs(path);
 	tokenize(fs);
-	parse(drawer);
 	fs.close();
 }
 
@@ -208,13 +205,13 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = SCALE;
 					// look at format <x>,<y>,<z>
-					lexeme = this->delimited(s, lhqueue, {',', ' '}, 2);
+					lexeme = exhaust_until(s, lhqueue, '\n');
 				}
 				else if (this->lookahead(s, lhqueue, "urface"))
 				{
 					token = SURFACE;
-					// expect format: (<r>,<g>,<b>)
-					lexeme = this->find_first_of(s, lhqueue, {')'});
+					// expect format: (<r>,<g>,<b>) ks p
+					lexeme = exhaust_until(s, lhqueue, '\n');
 				}
 				break;
 			case 'r': // rotate
@@ -222,7 +219,7 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = ROTATE;
 					// look at format <axis> <angle>
-					lexeme = this->delimited(s, lhqueue, whitespace, 1);
+					lexeme = exhaust_until(s, lhqueue, '\n');
 				}
 				break;
 			case 't': // translate
@@ -230,47 +227,61 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = TRANSLATE;
 					// look at format <x>,<y>,<z>
-					lexeme = this->delimited(s, lhqueue, {',', ' '}, 2);
+					lexeme = exhaust_until(s, lhqueue, '\n');
 				}
 				break;
-			case 'l': // line
-				if (this->lookahead(s, lhqueue, "ine"))
+			case 'l': // line or light
+				if (this->lookahead(s, lhqueue, "ine", false))
 				{
 					token = LINE;
 					// look at format (<x>,<y>,<h>)(<x>,<y>,<h>)
 					// OR (<x>,<y>,<h>,<r>,<g>,<b>)(<x>,<y>,<h>,<r>,<g>,<b>)
-					for (size_t i = 0; i < 2; i++) {
-						lexeme += this->find_first_of(s, lhqueue, {')'});
-					}
+					lexeme = exhaust_until(s, lhqueue, '\n');
+				}
+				else if (this->lookahead(s, lhqueue, "ight"))
+				{
+					token = LIGHT;
+					// look at format <r> <g> <b> <A> <B>
+					lexeme = exhaust_until(s, lhqueue, '\n');
 				}
 				break;
-			case 'p': // polygon
-				if (this->lookahead(s, lhqueue, "olygon")) {
+			case 'p': // polygon or phong
+				if (this->lookahead(s, lhqueue, "olygon", false))
+				{
 					token = POLYGON;
 					// look at format (<x>,<y>,<h>)(<x>,<y>,<h>),(<x>,<y>,<h>)
-					for (size_t i = 0; i < 3; i++) {
-						lexeme += this->find_first_of(s, lhqueue, {')'});
-					}
+					lexeme = exhaust_until(s, lhqueue, '\n');
+				}
+				else if (this->lookahead(s, lhqueue, "ong"))
+				{
+					token = PHONG;
+					lexeme = "phong";
 				}
 				break;
 			case 'w': // wire
-				if (this->lookahead(s, lhqueue, "ire")) {
+				if (this->lookahead(s, lhqueue, "ire"))
+				{
 					token = WIRE;
 					lexeme = "wire";
 				}
 				break;
 			case 'f': // file or fill
-				if (this->lookahead(s, lhqueue, "ile", false)) {
+				if (this->lookahead(s, lhqueue, "ile", false))
+				{
 					token = FILE;
 					// look at format "word"
-					for (size_t i = 0; i < 2; i++) {
-						lexeme += this->find_first_of(s, lhqueue, {'"'});
-					}
+					lexeme = exhaust_until(s, lhqueue, '\n');
 				}
 				// this look ahead will jump to next space or end of match if match is wrong
-				else if (this->lookahead(s, lhqueue, "illed")) {
+				else if (this->lookahead(s, lhqueue, "illed", false))
+				{
 					token = FILL;
 					lexeme = "filled";
+				}
+				else if (this->lookahead(s, lhqueue, "lat"))
+				{
+					token = FLAT;
+					lexeme = "flat";
 				}
 				break;
 			case 'c': // camera
@@ -278,7 +289,7 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = CAMERA;
 					// expect format <xlow> <ylow> <xhigh> <yhigh> <hither> <yon>
-					lexeme = this->delimited(s, lhqueue, whitespace, 5);
+					lexeme = exhaust_until(s, lhqueue, '\n');
 				}
 				break;
 			case 'o': // obj
@@ -286,9 +297,7 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = OBJ;
 					// expect format "filename"
-					for (size_t i = 0; i < 2; i++) {
-						lexeme += this->find_first_of(s, lhqueue, {'"'});
-					}
+					lexeme = exhaust_until(s, lhqueue, '\n');
 				}
 				break;
 			case 'a': // ambient
@@ -296,7 +305,7 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = AMBIENT;
 					// expect format: (<r>,<g>,<b>)
-					lexeme = this->find_first_of(s, lhqueue, {')'});
+					lexeme = exhaust_until(s, lhqueue, '\n');
 				}
 				break;
 			case 'd': // depth
@@ -304,8 +313,14 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = DEPTH;
 					// expect format: <near> <far> (<r>,<g>,<b>)
-					lexeme = this->delimited(s, lhqueue, whitespace, 2);
-					lexeme += this->find_first_of(s, lhqueue, {')'});
+					lexeme = exhaust_until(s, lhqueue, '\n');
+				}
+				break;
+			case 'g':
+				if (this->lookahead(s, lhqueue, "ouraud"))
+				{
+					token = GOURAUD;
+					lexeme = "gouraud";
 				}
 				break;
 			default: // ignore
@@ -493,8 +508,13 @@ void simp_reader::parse (DRAW drawer)
 				std::string f = this->trim(lexeme, filter);
 				f += ".simp";
 				// read and parse f
-				simp_reader* reader = new simp_reader(directory_ + "/" + f,
-					drawerwrapper, ambient_, surface_, goner_);
+				simp_reader* reader = new simp_reader(directory_ + "/" + f);
+				reader->ambient_ = ambient_;
+				reader->surface_ = surface_;
+				reader->goner_ = goner_;
+				reader->ks_ = ks_;
+				reader->p_ = p_;
+				reader->parse(drawerwrapper);
 				reader->get_instructions(
 				[this, pushcount](INSTRUCTION* i) {
 					i->stack_ += pushcount;
@@ -534,7 +554,9 @@ void simp_reader::parse (DRAW drawer)
 				std::vector<poly_model*> objs;
 				std::string f = this->trim(lexeme, filter);
                 f += ".obj";
-                obj_reader reader(directory_ + "/" + f, surface_);
+                obj_reader reader(directory_ + "/" + f);
+                reader.basecolor_ = surface_;
+                reader.parse([](int,int,int,unsigned) {});
                 reader.get_objects(objs);
                 if (!objs.empty())
                 {
@@ -606,11 +628,36 @@ void simp_reader::parse (DRAW drawer)
 				break;
 			case SURFACE:
 			{
-				// expect format: (<r>,<g>,<b>)
-				color_grad cg = to_rgb(lexeme, " ", filter);
+				// expect format: (<r>,<g>,<b>) ks p
+				std::vector<std::string> nfc = this->split(lexeme, ")");
+//				if (nfc.size() != 2)
+//				{
+//					throw std::exception(); // todo: better exception: invalid syntax
+//				}
+				color_grad cg = to_rgb(nfc[0], " ", filter);
 				surface_ = color(255*cg.r, 255*cg.g, 255*cg.b);
+//				std::vector<std::string> vals = this->split(nfc[1], " ");
+//				if (vals.size() != 2)
+//				{
+//					throw std::exception(); // todo: better exception: invalid syntax
+//				}
+//				ks_ = std::atof(this->trim(vals[0], whitespace).data());
+//				p_ = std::atof(this->trim(vals[1], whitespace).data());
 			}
 				break;
+			case LIGHT:
+			{
+
+			}
+			case PHONG:
+			{
+			}
+			case GOURAUD:
+			{
+			}
+			case FLAT:
+			{
+			}
 			default: // ignore INVALID
 				break;
 		}

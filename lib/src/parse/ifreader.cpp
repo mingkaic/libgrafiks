@@ -137,7 +137,11 @@ std::vector<std::string> ifreader::split (std::string s, std::string delim) cons
 		{
 			next = ns;
 		}
-		accum.push_back(s.substr(prev, next - prev));
+		std::string subs = s.substr(prev, next - prev);
+		if (!subs.empty())
+		{
+			accum.push_back(subs);
+		}
 	}
 	return accum;
 }

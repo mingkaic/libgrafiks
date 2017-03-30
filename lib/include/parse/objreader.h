@@ -17,12 +17,14 @@ namespace glib
 class obj_reader : public ifreader
 {
 public:
-	obj_reader (std::string path, color basecolor);
+	obj_reader (std::string path);
 	~obj_reader (void);
-	void get_objects (std::vector<poly_model*>& out)
-	{
-		out = std::move(objects_); // transfer ownership
-	}
+
+	virtual void parse (DRAW drawer);
+
+	void get_objects (std::vector<poly_model*>& out);
+
+	color basecolor_ = 0xffffffff;
 
 protected:
 	virtual std::unordered_set<char> whiteset (void) const
@@ -30,7 +32,6 @@ protected:
 		return {' ', '\n', '\t', '\r'};
 	}
 	virtual void tokenize (std::istream& s);
-    virtual void parse (DRAW drawer);
 
 private:
 	std::vector<double> factors (std::string lexeme, const std::unordered_set<char>& ignore) const;
@@ -38,7 +39,6 @@ private:
 #define LEX_TOK std::pair<std::string, size_t>
 	std::queue<LEX_TOK> lextok_;
 	std::vector<poly_model*> objects_;
-	color basecolor_;
 };
 
 }

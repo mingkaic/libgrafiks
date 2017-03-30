@@ -27,25 +27,28 @@ namespace glib
 class simp_reader : public ifreader
 {
 public:
-	simp_reader (std::string path, DRAW drawer,
-		color_grad ambient = 0,
-		color surface = 0xffffffff,
-		std::shared_ptr<ishaper> goner = nullptr);
+	simp_reader (std::string path);
 	~simp_reader (void);
 
+	// parses lextok for grammatic meaning based on simp specifications
+	virtual void parse (DRAW drawer);
+
 	void execute (point centeryon, size_t width, size_t height);
+
+	color_grad ambient_ = 0;
+	color surface_ = 0xffffffff;
+	std::shared_ptr<ishaper> goner_ = nullptr;
+	double ks_ = 0.3;
+	double p_ = 8;
 
 protected:
 	virtual std::unordered_set<char> whiteset (void) const
 	{
-		return {' ', '\n', '\t', '\r'};
+		return {' ', '\n', '\t', '\r', EOF};
 	}
 
 	// implements a pseudo tokenizer that implies partial information on grammar (otherwise we'll need regex for numerics)
 	virtual void tokenize (std::istream& s);
-
-	// parses lextok for grammatic meaning based on simp specifications
-	virtual void parse (DRAW drawer);
 
 private:
 	point to_point(std::string pts, std::string delims,
@@ -118,10 +121,6 @@ private:
 	std::queue<LEX_TOK> lextok_;
 	std::list<INSTRUCTION*> instructions_;
 	std::vector<simp_reader*> subreaders_;
-
-	color_grad ambient_;
-	color surface_;
-	std::shared_ptr<ishaper> goner_;
 };
 
 }

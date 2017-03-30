@@ -18,6 +18,9 @@ namespace glib
 
 class ifreader
 {
+public:
+	virtual void parse (DRAW drawer) = 0;
+
 protected:
 	// USEFUL HELPER FUNCTIONS FOR TOKENIZER
 	virtual std::unordered_set<char> whiteset (void) const = 0;
@@ -42,8 +45,6 @@ protected:
 	std::vector<std::string> split (std::string s, std::string delim) const;
 
 	std::string trim (std::string s, std::unordered_set<char> trash) const;
-
-	virtual void parse (DRAW drawer) = 0;
 };
 
 } // namespace glib

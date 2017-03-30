@@ -17,12 +17,10 @@ enum OBJ_TOK
 	FACE
 };
 
-obj_reader::obj_reader (std::string path, color basecolor) :
-	basecolor_(basecolor)
+obj_reader::obj_reader (std::string path)
 {
 	std::ifstream fs(path);
 	tokenize(fs);
-	parse([](int,int,int,unsigned) {});
 	fs.close();
 }
 
@@ -213,6 +211,11 @@ void obj_reader::parse (DRAW drawer)
 				break;
 		}
 	}
+}
+
+void obj_reader::get_objects (std::vector<poly_model*>& out)
+{
+	out = std::move(objects_); // transfer ownership
 }
 
 }
