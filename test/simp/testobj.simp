@@ -1,9 +1,17 @@
 ambient (1, 1, 1)
 surface (1, 1, 1)
-depth 0 40 (0, 0, 0)
-camera -1.2 -1.2 1.2 1.2 0.1 200
+depth 0 60 (0, 0, 0)
 
-translate 0, 0, 20
-rotate Y -45
-rotate X 21
-obj "airboat"
+{
+    translate 10 10 -30
+    rotate X -15
+    rotate Y 15
+    camera -1.2 -1.2 1.2 1.2 0.1 200
+}
+
+# translate 10 -10 0
+# rotate Y -45
+# rotate X 21
+# obj "airboat"
+wire
+file "hypercube"

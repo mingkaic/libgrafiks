@@ -32,11 +32,11 @@ public:
 		}
 	}
 
-	void colorpoints (std::function<void(color&)> ctrans)
+	void trans_points (std::function<void(point&)> ctrans)
 	{
 		for (point& v : vertices_)
 		{
-			ctrans(v.basecolor);
+			ctrans(v);
 		}
 	}
 

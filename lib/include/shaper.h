@@ -36,6 +36,11 @@ struct shape_render
 
 	void run (void) {
 		assert(shaper_ && model_);
+		point p0 = model_->get_v(0);
+		if (0 > p0.getX() || 0 > p0.getY())
+		{
+			std::cout << "stop\n";
+		}
 		shaper_->draw(model_);
 	}
 };

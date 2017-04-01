@@ -104,20 +104,18 @@ template <size_t N>
 void sqr_mat<N>::adjoint (const double in[N][N], double out[N][N]) const
 {
 	if (N == 1) { out[0][0] = 1; return; }
-
 	double cof[N][N];
 	int sign = 1;
-
 	for (size_t y = 0; y < N; y++)
 	{
-		for (int x = 0; x < N; x++)
+		for (size_t x = 0; x < N; x++)
 		{
 			cofactor(in, cof, y, x, N);
 
-			out[y][x] = determinant(cof, N-1);
+			out[x][y] = determinant(cof, N-1);
 			if ((x + y) % 2 != 0)
 			{
-				out[y][x] = -out[y][x];
+				out[x][y] = -out[x][y];
 			}
 		}
 	}

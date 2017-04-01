@@ -15,6 +15,7 @@
 #include "lib/include/lines/ddanalyzer.h"
 #include "lib/include/polygons/convexwirer.h"
 #include "lib/include/polygons/convexfiller.h"
+#include "lib/include/light/light.h"
 
 #ifndef LIBGRAFIKS_SIMPREADER_HPP
 #define LIBGRAFIKS_SIMPREADER_HPP
@@ -23,6 +24,13 @@ namespace glib
 {
 
 #define SCREEN_DIM 100
+
+enum SHADING_METHOD
+{
+	FLAT_SHAD = 0,
+	GOURAUD_SHAD,
+	PHONG_SHAD
+};
 
 class simp_reader : public ifreader
 {
@@ -35,11 +43,11 @@ public:
 
 	void execute (point centeryon, size_t width, size_t height);
 
-	color_grad ambient_ = 0;
 	color surface_ = 0xffffffff;
 	std::shared_ptr<ishaper> goner_ = nullptr;
 	double ks_ = 0.3;
 	double p_ = 8;
+	SHADING_METHOD shad_ = FLAT_SHAD;
 
 protected:
 	virtual std::unordered_set<char> whiteset (void) const
@@ -55,7 +63,7 @@ private:
 		std::unordered_set<char> ignore,
 		color def_color) const;
 
-	color_grad to_rgb(std::string cs, std::string delim,
+	color_grad to_rgb (std::string cs, std::string delim,
 		std::unordered_set<char> ignore) const;
 
 #define RUN_INSTR std::function<void(INSTRUCTION*)>
@@ -107,6 +115,25 @@ private:
 		double top_;
 		double front_;
 		double back_;
+	};
+
+	struct AMBIENT_INST : public INSTRUCTION
+	{
+		AMBIENT_INST (color_grad cg,
+			size_t stackidx = 0) :
+			INSTRUCTION(stackidx), cg(cg) {}
+		color_grad cg;
+	};
+
+	struct LIGHT_INST : public INSTRUCTION
+	{
+		LIGHT_INST (color_grad cg, double A, double B,
+			size_t stackidx = 0) :
+			INSTRUCTION(stackidx), cg(cg), A(A), B(B) {}
+
+		color_grad cg;
+		double A;
+		double B;
 	};
 
 	void get_instructions (RUN_INSTR run)

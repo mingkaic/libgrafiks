@@ -5,42 +5,6 @@
 namespace glib
 {
 
-color_grad operator - (const color& lhs, const color& rhs)
-{
-    return color_grad{
-		(double) lhs.r - (double) rhs.r,
-		(double) lhs.g - (double) rhs.g,
-		(double) lhs.b - (double) rhs.b
-    };
-}
-
-color_grad operator / (const color_grad& lhs, double rhs)
-{
-	return color_grad{
-		lhs.r / rhs,
-		lhs.g / rhs,
-		lhs.b / rhs
-	};
-}
-
-color_grad operator * (const color_grad& lhs, double magnitude)
-{
-	return color_grad{
-		lhs.r * magnitude,
-		lhs.g * magnitude,
-		lhs.b * magnitude
-	};
-}
-
-color operator * (const color& lhs, double magnitude)
-{
-	return color{
-		(uint8_t) (lhs.r * magnitude),
-		(uint8_t) (lhs.g * magnitude),
-		(uint8_t) (lhs.b * magnitude)
-	};
-}
-
 normal operator - (const normal& a, const normal& b)
 {
 	return normal{a.x - b.x, a.y - b.y, a.z - b.z};

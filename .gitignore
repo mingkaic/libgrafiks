@@ -1,5 +1,5 @@
 **/*build
 *.sh
-cmake-build-debug
+cmake-build-*
 .idea
 *.pro.user

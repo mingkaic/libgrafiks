@@ -3,6 +3,7 @@
 //
 
 #include "lib/include/parse/simpreader.h"
+#include "lib/include/camera.h"
 
 #ifdef LIBGRAFIKS_SIMPREADER_HPP
 
@@ -28,9 +29,9 @@ enum SIMP_TOK
 	DEPTH,
 	SURFACE,
 	LIGHT,
-	PHONG,
+	FLAT,
 	GOURAUD,
-	FLAT
+	PHONG
 };
 
 simp_reader::simp_reader (std::string path)
@@ -76,24 +77,12 @@ void simp_reader::execute (point centeryon, size_t width, size_t height)
 	std::vector<shape_render> shapes;
 	ctfs.push(transformation());
 
-	double halfw = width / 2.0;
-	double halfh = height / 2.0;
 	double end = centeryon.getZ();
+	point centerhither = centeryon;
+	centerhither.z = 0;
 	// orthogonal cs to screen
-	transformation towindow = scale(point{halfw/SCREEN_DIM, -halfh/SCREEN_DIM, 1});
-
-	std::vector<plane> planes =
-	{
-		plane({-100, 0, 0}, {1, 0, 0}), // left
-		plane({100, 0, 0}, {-1, 0, 0}), // right
-		plane({0, -100, 0}, {0, 1, 0}), // down
-		plane({0, 100, 0}, {0, -1, 0}), // up
-		plane({0, 0, 0}, {0, 0, 1}), // front
-		plane({0, 0, end}, {0, 0, -1}) // back
-	};
-	transformation Ktrans;
-	transformation CTMP;
-	bool cam_proj = false;
+	camera* cam = new camera(end, {width, height}, centerhither);
+	light sources;
 
 	for (INSTRUCTION* i : instructions_)
 	{
@@ -112,67 +101,46 @@ void simp_reader::execute (point centeryon, size_t width, size_t height)
         {
 			// transform in order of ctf
 			r->render_.model_->transform(ctf);
+
+			// gaurad shade with ambience
+			r->render_.model_->trans_points(
+			[&sources](point& c)
+			{
+				c.basecolor = sources(c.getX(), c.getY(), c.getZ(), c.basecolor, c.n);
+			});
+
 			shapes.push_back(r->render_);
 		}
 		else if (TRANSFORM* t = dynamic_cast<TRANSFORM*>(i))
 		{
 			ctf = ctf.matmul(*t->trans_);
 		}
-		else if (CAMERA_INST* cam = dynamic_cast<CAMERA_INST*>(i))
+		else if (CAMERA_INST* camInst = dynamic_cast<CAMERA_INST*>(i))
 		{
-			auto dist = [](double val)
-			{
-				return sqrt(1 + val*val);
-			};
-			planes = {
-				plane({0, 0, 0}, {1/dist(cam->left_), 0, std::abs(cam->left_)/dist(cam->left_)}),
-				plane({0, 0, 0}, {-1/dist(cam->right_), 0, std::abs(cam->right_)/dist(cam->right_)}),
-				plane({0, 0, 0}, {0, 1/dist(cam->down_), std::abs(cam->down_)/dist(cam->down_)}),
-				plane({0, 0, 0}, {0, -1/dist(cam->top_), std::abs(cam->top_)/dist(cam->top_)}),
-				plane({0, 0, cam->front_}, {0, 0, 1}),
-				plane({0, 0, cam->back_}, {0, 0, -1})
-			};
-			for (plane& p : planes)
-			{
-				ctf.mul(p.pt_.x, p.pt_.y, p.pt_.z);
-				ctf.mul(p.norm_.x, p.norm_.y, p.norm_.z);
-			}
-
-			// insert camera transformation
-			Ktrans = camera_transform(1);
-			CTMP = ctf.inverse();
-			// everything's projected to z=1 plane
-			double planewidthx = (cam->right_ - cam->left_)/2;
-			double planewidthy = (cam->top_ - cam->down_)/2;
-			towindow = scale(point{halfw/planewidthx, -halfh/planewidthy, 1});
-			cam_proj = true;
+			delete cam;
+			projective_cam* proj = new projective_cam(
+				camInst->left_, camInst->right_,
+				camInst->top_, camInst->down_,
+				camInst->front_, camInst->back_,
+				{width, height}, centerhither);
+			cam = proj;
+			proj->transform(ctf);
+		}
+		else if (AMBIENT_INST* amb = dynamic_cast<AMBIENT_INST*>(i))
+		{
+			sources.ambient_ = amb->cg;
+		}
+		else if (LIGHT_INST* lsrc = dynamic_cast<LIGHT_INST*>(i))
+		{
+			double x = 0, y = 0, z = 0;
+			ctf.mul(x, y, z);
+			sources.srcs_.push_back(light::bulb{lsrc->A, lsrc->B, normal(x, y, z), lsrc->cg});
 		}
 	}
 
-    towindow = translate(point{centeryon.getX(), centeryon.getY()}).matmul(towindow);
 	for (shape_render& rends : shapes)
 	{
-		if (!rends.model_->clip_planes(planes))
-		{
-			if (cam_proj)
-			{
-				rends.model_->transform(CTMP);
-				// cache model's z coord
-				std::vector<point> zs;
-				for (size_t i = 0, n = rends.model_->n_vertices();
-					 i < n; i++)
-				{
-					point p = rends.model_->get_v(i);
-					zs.push_back({0, 0, p.z * p.z, 0});
-				}
-				rends.model_->transform(Ktrans);
-				// add z coord to z
-				rends.model_->add_point(zs);
-			}
-			rends.model_->transform(towindow);
-			rends.run();
-		}
-		// else model is culled
+		cam->render(rends);
 	}
 }
 
@@ -364,7 +332,7 @@ point simp_reader::to_point (std::string pts, std::string delim,
 	return p;
 }
 
-color_grad simp_reader::to_rgb(std::string cs, std::string delim,
+color_grad simp_reader::to_rgb (std::string cs, std::string delim,
 	 std::unordered_set<char> ignore) const
 {
 	std::vector<std::string> rgb = this->split(cs, " ");
@@ -509,11 +477,12 @@ void simp_reader::parse (DRAW drawer)
 				f += ".simp";
 				// read and parse f
 				simp_reader* reader = new simp_reader(directory_ + "/" + f);
-				reader->ambient_ = ambient_;
 				reader->surface_ = surface_;
 				reader->goner_ = goner_;
 				reader->ks_ = ks_;
 				reader->p_ = p_;
+				reader->shad_ = shad_;
+
 				reader->parse(drawerwrapper);
 				reader->get_instructions(
 				[this, pushcount](INSTRUCTION* i) {
@@ -521,6 +490,12 @@ void simp_reader::parse (DRAW drawer)
 					instructions_.push_back(i);
 				});
 				subreaders_.push_back(reader);
+
+				surface_ = reader->surface_;
+				goner_ = reader->goner_;
+				ks_ = reader->ks_;
+				p_ = reader->p_;
+				shad_ = reader->shad_;
 			}
 				break;
 			case WIRE:
@@ -568,12 +543,13 @@ void simp_reader::parse (DRAW drawer)
                         instructions_.push_back(new RENDER(*it, goner_, pushcount));
                     }
                 }
+				surface_ = reader.basecolor_;
 			}
 				break;
 			case AMBIENT:
 			{
 				// expect format: (<r>,<g>,<b>)
-				ambient_ = to_rgb(lexeme, " ", filter);
+				inst = new AMBIENT_INST(to_rgb(lexeme, " ", filter), pushcount);
 			}
 				break;
 			case DEPTH:
@@ -630,50 +606,63 @@ void simp_reader::parse (DRAW drawer)
 			{
 				// expect format: (<r>,<g>,<b>) ks p
 				std::vector<std::string> nfc = this->split(lexeme, ")");
-//				if (nfc.size() != 2)
-//				{
-//					throw std::exception(); // todo: better exception: invalid syntax
-//				}
+				size_t nnfc = nfc.size();
+				if (nnfc > 2)
+				{
+					throw std::exception(); // todo: better exception: invalid syntax
+				}
 				color_grad cg = to_rgb(nfc[0], " ", filter);
 				surface_ = color(255*cg.r, 255*cg.g, 255*cg.b);
-//				std::vector<std::string> vals = this->split(nfc[1], " ");
-//				if (vals.size() != 2)
-//				{
-//					throw std::exception(); // todo: better exception: invalid syntax
-//				}
-//				ks_ = std::atof(this->trim(vals[0], whitespace).data());
-//				p_ = std::atof(this->trim(vals[1], whitespace).data());
+				if (nnfc > 1)
+				{
+					std::vector<std::string> vals = this->split(nfc[1], " ");
+					if (vals.size() != 2)
+					{
+						throw std::exception(); // todo: better exception: invalid syntax
+					}
+					ks_ = std::atof(this->trim(vals[0], whitespace).data());
+					p_ = std::atof(this->trim(vals[1], whitespace).data());
+				}
 			}
 				break;
 			case LIGHT:
 			{
+				// expect format <r> <g> <b> <A> <B>
+				std::vector<std::string> vals = this->split(lexeme, " ");
+				if (vals.size() != 5)
+				{
+					throw std::exception(); // todo: better exception: invalid syntax
+				}
+				double r = std::atof(this->trim(vals[0], filter).data());
+				double g = std::atof(this->trim(vals[1], filter).data());
+				double b = std::atof(this->trim(vals[2], filter).data());
 
+				double A = std::atof(this->trim(vals[3], filter).data());
+				double B = std::atof(this->trim(vals[4], filter).data());
+
+				inst = new LIGHT_INST(color_grad(r, g, b), A, B, pushcount);
 			}
-			case PHONG:
+				break;
+			case FLAT: // todo: perform shading operations
 			{
+				shad_ = FLAT_SHAD;
 			}
+				break;
 			case GOURAUD:
 			{
+				shad_ = GOURAUD_SHAD;
 			}
-			case FLAT:
+				break;
+			case PHONG:
 			{
+				shad_ = PHONG_SHAD;
 			}
+				break;
 			default: // ignore INVALID
 				break;
 		}
 		if (inst)
 		{
-			if (RENDER* r = dynamic_cast<RENDER*>(inst))
-			{
-				// gaurad shade with ambience
-				r->render_.model_->colorpoints(
-				[this](color& c)
-				{
-					c.r *= ambient_.r;
-					c.g *= ambient_.g;
-					c.b *= ambient_.b;
-				});
-			}
 			instructions_.push_back(inst);
 		}
 	}

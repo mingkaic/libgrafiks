@@ -6,7 +6,7 @@
 #include "test/assignment2/a2test.h"
 #include "test/assignment3/a3test.h"
 
-#define TESTNUMBER 2
+#define TESTNUMBER 3
 
 #ifndef CLIENT_H
 #define CLIENT_H
