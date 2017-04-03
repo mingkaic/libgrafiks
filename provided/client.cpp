@@ -27,10 +27,10 @@ Client::Client(Drawable *drawable) :
 #define PANEL_COLOR 0x00000000
 
 void Client::nextPage() {
-    static int pageNumber = 0;
-    std::cout << "PageNumber " << pageNumber << std::endl;
+	static int pageNumber = 0;
+	std::cout << "PageNumber " << pageNumber << std::endl;
 
-    draw_rect(0, 0, CANVASW, CANVASH, BG_COLOR);
+	draw_rect(0, 0, CANVASW, CANVASH, BG_COLOR);
 	test->run(pageNumber, drawable,
 	[this](const panel& p)
 	{
@@ -38,7 +38,7 @@ void Client::nextPage() {
 		draw_rect(pts.first.getX(), pts.first.getY(), pts.second.getX(), pts.second.getY(), PANEL_COLOR);
 	});
 
-    pageNumber++;
+	pageNumber++;
 }
 
 void Client::draw_rect(int x1, int y1, int x2, int y2, unsigned int color) {

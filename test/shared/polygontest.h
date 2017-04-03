@@ -9,32 +9,32 @@
 
 struct polygon_test : public itester
 {
-    unsigned int randomColor (void)
-    {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_real_distribution<> dis(0xff0f0f0f, 0xffffffff);
-        return dis(gen);
-    }
+	unsigned int randomColor (void)
+	{
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_real_distribution<> dis(0xff0f0f0f, 0xffffffff);
+		return dis(gen);
+	}
 
-    size_t scene = 0;
-    virtual void exec (std::vector<glib::ishaper*>& shapers, const glib::point& topcorner, size_t width, size_t height)
-    {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        size_t edgex = topcorner.getX();
-        size_t edgey = topcorner.getY();
-        glib::ishaper* shaper = shapers[0];
+	size_t scene = 0;
+	virtual void exec (std::vector<glib::ishaper*>& shapers, const glib::point& topcorner, size_t width, size_t height)
+	{
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		size_t edgex = topcorner.getX();
+		size_t edgey = topcorner.getY();
+		glib::ishaper* shaper = shapers[0];
 
-        switch (scene)
-        {
-            case 0: // starburst
-            {
-                size_t centerx = edgex + width / 2;
-                size_t centery = edgey + height / 2;
-                glib::point origin(centerx, centery);
-                std::vector<glib::point> pts = starburst_vertices(centerx, centery, 125, 90);
-                size_t i = 0;
+		switch (scene)
+		{
+			case 0: // starburst
+			{
+				size_t centerx = edgex + width / 2;
+				size_t centery = edgey + height / 2;
+				glib::point origin(centerx, centery);
+				std::vector<glib::point> pts = starburst_vertices(centerx, centery, 125, 90);
+		        size_t i = 0;
                 for (i = 0; i < pts.size() - 1; i++)
                 {
                     pts[i].basecolor = randomColor();

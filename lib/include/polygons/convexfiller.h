@@ -14,9 +14,9 @@ namespace glib
 
 struct convex_filler : public ipolygoner
 {
-    convex_filler (DRAW draw);
+	convex_filler (DRAW draw);
 
-    virtual void draw (const poly_model* model) const;
+	virtual void draw (const poly_model* model) const;
 };
 
 }

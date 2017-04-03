@@ -28,12 +28,12 @@ enum SHADING_METHOD
 class ishaper
 {
 public:
-    ishaper (DRAW drawable) : drawable_(drawable) {}
+	ishaper (DRAW drawable) : drawable_(drawable) {}
 
-    virtual void draw (const shape_model* model) const = 0;
+	virtual void draw (const shape_model* model) const = 0;
 
 protected:
-    DRAW drawable_;
+	DRAW drawable_;
 };
 
 // rendering wrapper object

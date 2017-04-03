@@ -9,22 +9,22 @@
 
 class Window361 : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    Window361();
-    ~Window361();
-    Drawable *getDrawable();
-    void setPageTurner(PageTurner *pageTurner);
+	Window361();
+	~Window361();
+	Drawable *getDrawable();
+	void setPageTurner(PageTurner *pageTurner);
 
 private:
-    RenderArea361 *renderArea;
-    QPushButton *nextPageButton;
-    PageTurner *pageTurner;
+	RenderArea361 *renderArea;
+	QPushButton *nextPageButton;
+	PageTurner *pageTurner;
 
 
 private slots:
-    void nextPageClicked();
+	void nextPageClicked();
 
 };
 

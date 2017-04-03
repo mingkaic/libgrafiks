@@ -14,9 +14,9 @@ namespace glib
 
 struct dda_liner : public iliner
 {
-    dda_liner (DRAW draw);
+	dda_liner (DRAW draw);
 
-    virtual void draw (const line_model* model) const;
+	virtual void draw (const line_model* model) const;
 };
 
 }

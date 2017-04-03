@@ -18,15 +18,15 @@ namespace glib
 class aalias_liner : public iliner
 {
 public:
-    aalias_liner (DRAW draw);
+	aalias_liner (DRAW draw);
 
-    // (exactly the center of the square pixel to its edge)
-    virtual void draw (const line_model* model) const;
+	// (exactly the center of the square pixel to its edge)
+	virtual void draw (const line_model* model) const;
 
 private:
-    // input: distance from line center to desired pixel center
-    // return the percentage of line model to pixel center
-    double intensity (double dlcenter) const;
+	// input: distance from line center to desired pixel center
+	// return the percentage of line model to pixel center
+	double intensity (double dlcenter) const;
 };
 
 }

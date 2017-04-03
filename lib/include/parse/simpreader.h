@@ -37,7 +37,6 @@ public:
 
 	color surface_ = 0xffffffff;
 	std::shared_ptr<ishaper> goner_ = nullptr;
-	color_grad kd_ = 0xff010101;
 	double ks_ = 0.3;
 	double p_ = 8;
 

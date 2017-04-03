@@ -65,7 +65,6 @@ struct poly_model : public shape_model
 
 	bool isconvex (void) const;
 
-	color_grad kd_ = 0xff010101;
 	double ks_ = 0.3;
 	double p_ = 8;
 };

@@ -16,6 +16,8 @@
 namespace glib
 {
 
+using LIGHTCOLOR = std::function<unsigned(double,double,double,color_grad,normal)>;
+
 class shape_model
 {
 public:
@@ -35,6 +37,9 @@ public:
 	// return true if model is culled
 	bool clip_planes (const std::vector<plane>& planes);
 
+	color* face_color_ = nullptr;
+	LIGHTCOLOR shader_;
+
 protected:
 	bool intersect (
 		const plane& separator,
@@ -42,7 +47,7 @@ protected:
 		const point& p2,
 		point& respt);
 
-    std::vector<point> vertices_;
+	std::vector<point> vertices_;
 };
 
 }

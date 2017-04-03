@@ -36,14 +36,14 @@ enum SIMP_TOK
 
 simp_reader::simp_reader (std::string path)
 {
-    size_t nameidx = path.find_last_of('/');
-    if (path.npos == nameidx) {
-        nameidx = path.find_last_of('\\');
-    }
+	size_t nameidx = path.find_last_of('/');
+	if (path.npos == nameidx) {
+		nameidx = path.find_last_of('\\');
+	}
 	if (path.npos != nameidx) {
 		directory_ = path.substr(0, nameidx);
 	}
-    std::ifstream fs(path);
+	std::ifstream fs(path);
 	tokenize(fs);
 	fs.close();
 }
@@ -99,7 +99,7 @@ void simp_reader::execute (point centeryon, size_t width, size_t height)
 		}
 		transformation& ctf = ctfs.top();
 		if (RENDER* r = dynamic_cast<RENDER*>(i))
-        {
+		{
 			// transform in order of ctf
 			r->render_.model_->transform(ctf);
 			r->render_.sources_ = sources;
@@ -304,10 +304,10 @@ void simp_reader::tokenize (std::istream& s)
 				break;
 		}
 		if (token != INVALID)
-        {
+		{
 			lextok_.push({lexeme, token});
 		}
-    }
+	}
 }
 
 point simp_reader::to_point (std::string pts, std::string delim,
@@ -397,9 +397,9 @@ void simp_reader::parse (DRAW drawer)
 
 	// phong shade with depth
 	DRAW drawerwrapper =
-	[drawer] (int x, int y, int z, unsigned c)
+	[drawer] (int x, int y, int z, unsigned c, normal& n)
 	{
-		drawer(x, y, z, c);
+		drawer(x, y, z, c, n);
 	};
 	std::shared_ptr<ishaper> liner = std::shared_ptr<ishaper>(new dda_liner(drawerwrapper));
 	if (nullptr == goner_)
@@ -415,9 +415,9 @@ void simp_reader::parse (DRAW drawer)
 		std::string lexeme = lt.first;
 		lexeme = remove_comma(lexeme, whitespace);
 		SIMP_TOK token = (SIMP_TOK) lt.second;
-        lextok_.pop();
+		lextok_.pop();
 		switch (token)
-        {
+	    {
 			case PUSH_STACK:
 				pushcount++;
 				inst = new INSTRUCTION(pushcount);
@@ -478,7 +478,6 @@ void simp_reader::parse (DRAW drawer)
                 };
                 poly_model* poly = new poly_model(respts);
                 poly->lerp_norm();
-                poly->kd_ = kd_;
 				poly->ks_ = ks_;
 				poly->p_ = p_;
 				inst = new RENDER(poly, goner_, pushcount);
@@ -492,7 +491,6 @@ void simp_reader::parse (DRAW drawer)
 				simp_reader* reader = new simp_reader(directory_ + "/" + f);
 				reader->surface_ = surface_;
 				reader->goner_ = goner_;
-				reader->kd_ = kd_;
 				reader->ks_ = ks_;
 				reader->p_ = p_;
 
@@ -506,7 +504,6 @@ void simp_reader::parse (DRAW drawer)
 
 				surface_ = reader->surface_;
 				goner_ = reader->goner_;
-				kd_ = reader->kd_;
 				ks_ = reader->ks_;
 				p_ = reader->p_;
 			}
@@ -544,14 +541,13 @@ void simp_reader::parse (DRAW drawer)
                 f += ".obj";
                 obj_reader reader(directory_ + "/" + f);
                 reader.basecolor_ = surface_;
-                reader.parse([](int,int,int,unsigned) {});
+                reader.parse([](int,int,int,unsigned,normal&) {});
                 reader.get_objects(objs);
                 if (!objs.empty())
                 {
                     auto it = objs.begin();
 					poly_model* poly = *it;
 					poly->lerp_norm();
-					poly->kd_ = kd_;
 					poly->ks_ = ks_;
 					poly->p_ = p_;
                     inst = new RENDER(poly, goner_, pushcount);
@@ -560,7 +556,6 @@ void simp_reader::parse (DRAW drawer)
                     {
                     	poly = *it;
 						poly->lerp_norm();
-						poly->kd_ = kd_;
 						poly->ks_ = ks_;
 						poly->p_ = p_;
                         instructions_.push_back(new RENDER(poly, goner_, pushcount));
@@ -593,16 +588,16 @@ void simp_reader::parse (DRAW drawer)
 				color_grad cg = to_rgb(nfc[1], " ", filter);
 				color depth(255*cg.r, 255*cg.g, 255*cg.b);
 				drawerwrapper =
-				[near, far, depth, drawer] (int x, int y, int z, unsigned c)
+				[near, far, depth, drawer] (int x, int y, int z, unsigned c, normal& n)
 				{
 					assert(far >= near);
 					if (z < near || far == near)
 					{
-						drawer(x, y, z, c);
+						drawer(x, y, z, c, n);
 					}
 					else if (z > far)
 					{
-						drawer(x, y, z, (unsigned)depth);
+						drawer(x, y, z, (unsigned)depth, n);
 					}
 					else
 					{
@@ -612,7 +607,7 @@ void simp_reader::parse (DRAW drawer)
 						cc.r = fog * cc.r + invfog * depth.r;
 						cc.g = fog * cc.g + invfog * depth.g;
 						cc.b = fog * cc.b + invfog * depth.b;
-						drawer(x, y, z, (unsigned)cc);
+						drawer(x, y, z, (unsigned)cc, n);
 					}
 				};
 				if (is_fill)
@@ -634,8 +629,8 @@ void simp_reader::parse (DRAW drawer)
 				{
 					throw std::exception(); // todo: better exception: invalid syntax
 				}
-				kd_ = to_rgb(nfc[0], " ", filter);
-				surface_ = color(255*kd_.r, 255*kd_.g, 255*kd_.b);
+				color_grad cg = to_rgb(nfc[0], " ", filter);
+				surface_ = color(255*cg.r, 255*cg.g, 255*cg.b);
 				if (nnfc > 1)
 				{
 					std::vector<std::string> vals = this->split(nfc[1], " ");

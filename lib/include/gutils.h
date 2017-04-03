@@ -22,8 +22,6 @@
 namespace glib
 {
 
-#define DRAW std::function<void(int,int,int,unsigned)>
-
 struct normal
 {
 	normal (void) : x(0), y(0), z(0) {}
@@ -36,6 +34,8 @@ struct normal
 	double y;
 	double z;
 };
+
+#define DRAW std::function<void(int,int,int,unsigned,glib::normal&)>
 
 normal operator + (const normal& a, const normal& b);
 
@@ -105,6 +105,88 @@ double slope_tangent (point pt1, point pt2);
 unsigned int opacity_transform (unsigned int c, double opacity);
 
 unsigned int higher_intensity (unsigned int c1, unsigned int c2);
+
+struct lerper
+{
+	enum ARG { X, Y, Z };
+
+	lerper (point& to, point& from)
+	{
+		dx_ = to.getX() - from.getX();
+		dy_ = to.getY() - from.getY();
+		dz_ = to.getZ() - from.getZ();
+	}
+
+	virtual double step (double arg, double& x, double& y, double& z, color_grad& c, normal& n, ARG signal = X)
+	{
+		double d;
+		switch (signal)
+		{
+			case X:
+			{
+				d = (x - arg) / dx_;
+				y += d * dy_;
+				z += d * dz_;
+			}
+				break;
+			case Y:
+			{
+				d = (y - arg) / dy_;
+				x += d * dx_;
+				z += d * dz_;
+			}
+				break;
+			case Z:
+			{
+				d = (z - arg) / dz_;
+				x += d * dx_;
+				y += d * dy_;
+			}
+				break;
+		}
+		return d;
+	}
+
+	double dx_;
+	double dy_;
+	double dz_;
+};
+
+struct color_lerper : public lerper
+{
+	color_lerper (point& to, point& from) :
+		lerper(to, from), dc_(0)
+	{
+		dc_ = to.basecolor - from.basecolor;
+	}
+
+	virtual double step (double arg, double& x, double& y, double& z, color_grad& c, normal& n, ARG signal = X)
+	{
+		double d = lerper::step(arg, x, y, z, c, n, signal);
+		c += dc_ * d;
+		return d;
+	}
+
+	color_grad dc_;
+};
+
+struct normal_lerper : public color_lerper
+{
+	normal_lerper (point& to, point& from) :
+		color_lerper(to, from)
+	{
+		dn_ = to.n - from.n;
+	}
+
+	virtual double step (double arg, double& x, double& y, double& z, color_grad& c, normal& n, ARG signal = X)
+	{
+		double d = color_lerper::step(arg, x, y, z, c, n, signal);
+		n = n + d * dn_;
+		return d;
+	}
+
+	normal dn_;
+};
 
 }
 

@@ -64,9 +64,6 @@ void projective_cam::render (shape_render& rend) const
 {
 	if (!rend.model_->clip_planes(planes_))
 	{
-		point cpy = rend.model_->get_v(0);
-		std::cout << cpy.getX() << "," << cpy.getY() << "," << cpy.getZ() << std::endl;
-		std::cout << cpy.n.x << "," << cpy.n.y << "," << cpy.n.z << std::endl;
 		// move world to camera
 		rend.model_->transform(world2cam_);
 		rend.model_->transform(Ktrans_);

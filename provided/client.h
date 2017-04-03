@@ -14,15 +14,15 @@
 class Client : public PageTurner
 {
 public:
-    Client(Drawable *drawable);
-    ~Client()
-    {
-    	delete test;
-    }
-    void nextPage();
+	Client(Drawable *drawable);
+	~Client()
+	{
+		delete test;
+	}
+	void nextPage();
 
 private:
-    Drawable* drawable;
+	Drawable* drawable;
 	tester* test;
 
 	void draw_rect(int x1, int y1, int x2, int y2, unsigned int color);

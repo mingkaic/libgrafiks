@@ -13,33 +13,44 @@ namespace glib
 void shape_render::run (std::vector<const transformation*> trans, const camera_transform* Ktrans) {
 	assert(shaper_ && model_);
 
+	color face(0);
 	if (poly_model* pm = dynamic_cast<poly_model*>(model_))
 	{
+		LIGHTCOLOR lightpt = [this, pm, &trans, &Ktrans]
+		(double x, double y, double z, color_grad c, normal n) -> unsigned
+		{
+			c.r /= 255;
+			c.g /= 255;
+			c.b /= 255;
+			return (unsigned) sources_(normal(x, y, z),
+				n, trans, Ktrans, c, pm->ks_, pm->p_);
+		};
+		color_grad total(0);
 		// backface culling
 		if (!pm->cclockwise())
 		{
 			return;
 		}
 
-		pm->trans_points(
-			[this, pm, &trans, &Ktrans](point& c)
-			{
-				c.n.normalize();
-				c.basecolor = sources_(normal(c.getX(), c.getY(), c.getZ()),
-					c.n, trans, Ktrans, pm->kd_, pm->ks_, pm->p_);
-			});
-		switch(shad_)
+		if (FLAT_SHAD == shad_ || GOURAUD_SHAD == shad_)
 		{
-			case FLAT_SHAD:
-				break;
-			case GOURAUD_SHAD:
-				break;
-			case PHONG_SHAD:
-				break;
+			pm->trans_points(
+			[&total, pm, &lightpt](point& c)
+			{
+				color_grad cg = c.basecolor = lightpt(c.getX(), c.getY(), c.getZ(), c.basecolor, c.n);
+				total += cg / (double) pm->n_vertices();
+			});
 		}
-
+		if (FLAT_SHAD == shad_)
+		{
+			face = (unsigned) total;
+			pm->face_color_ = &face;
+		}
+		else if (PHONG_SHAD == shad_)
+		{
+			pm->shader_ = lightpt;
+		}
 	}
-
 	shaper_->draw(model_);
 }
 

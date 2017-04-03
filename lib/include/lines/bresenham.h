@@ -14,9 +14,9 @@ namespace glib
 
 struct bresen_liner : public iliner
 {
-    bresen_liner (DRAW draw);
+	bresen_liner (DRAW draw);
 
-    virtual void draw (const line_model* model) const;
+	virtual void draw (const line_model* model) const;
 };
 
 }

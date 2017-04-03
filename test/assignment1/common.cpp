@@ -4,7 +4,7 @@
 
 std::vector<glib::point> starburst_vertices (size_t centerx, size_t centery, size_t length, size_t nlines)
 {
-    glib::point origin((double) centerx, (double) centery);
+	glib::point origin((double) centerx, (double) centery);
 	double theta = 0;
 	double dtheta = 2*M_PI/nlines;
 	std::vector<glib::point> pts;

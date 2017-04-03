@@ -33,18 +33,18 @@ static transformation t7(o7);
 
 line_model::line_model (point a, point b)
 {
-    inorder(a, b);
-    this->vertices_ = {a, b};
+	inorder(a, b);
+	this->vertices_ = {a, b};
 }
 
 double line_model::dx (void) const
 {
-    return vertices_[1].getX() - vertices_[0].getX();
+	return vertices_[1].getX() - vertices_[0].getX();
 }
 
 double line_model::dy (void) const
 {
-    return vertices_[1].getY() - vertices_[0].getY();
+	return vertices_[1].getY() - vertices_[0].getY();
 }
 
 double line_model::dz (void) const
@@ -61,28 +61,28 @@ iliner::iliner (DRAW drawable) : ishaper(drawable) {}
 
 void iliner::draw (const shape_model* model) const
 {
-    draw(static_cast<const line_model*>(model));
+	draw(static_cast<const line_model*>(model));
 }
 
 const transformation& iliner::octantize (const line_model& model) const
 {
-    double m = model.dy() / model.dx(); 
-    if (m > 1) // o2
-    {
-        return t2;
-    }
-    else if (m < 0)
-    {
-        if (m > -1) // o8
-        {
-            return t8;
-        }
-        else // o7
-        {
-            return t7;
-        }
-    }
-    return t1;
+	double m = model.dy() / model.dx();
+	if (m > 1) // o2
+	{
+		return t2;
+	}
+	else if (m < 0)
+	{
+		if (m > -1) // o8
+		{
+			return t8;
+		}
+		else // o7
+		{
+			return t7;
+		}
+	}
+	return t1;
 }
 
 }

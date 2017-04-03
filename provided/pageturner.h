@@ -5,7 +5,7 @@
 class PageTurner
 {
 public:
-    virtual void nextPage() = 0;
+	virtual void nextPage() = 0;
 };
 
 #endif // PAGETURNER_H

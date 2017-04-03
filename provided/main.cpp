@@ -17,33 +17,33 @@ std::string a3test::simpfile = "";
 
 int main(int argc, char *argv[])
 {
-    std::cmatch cm;
-    if (argc > 1)
-    {
-        switch (TESTNUMBER)
-        {
-            case 2:
-                a2test::testdir = argv[1];
-                break;
-            case 3:
-                a3test::simpfile = argv[1];
-                break;
-            default:
-                break;
-        }
-    }
+	std::cmatch cm;
+	if (argc > 1)
+	{
+		switch (TESTNUMBER)
+		{
+			case 2:
+				a2test::testdir = argv[1];
+				break;
+			case 3:
+				a3test::simpfile = argv[1];
+				break;
+			default:
+				break;
+		}
+	}
 
-    QApplication app(argc, argv);   // because it's a Qt application
+	QApplication app(argc, argv);   // because it's a Qt application
 
-	Window361 window;               // make and show the window--size is already correct
-    window.show();
+	Window361 window;			   // make and show the window--size is already correct
+	window.show();
 
-    Drawable *sheet = window.getDrawable();
+	Drawable *sheet = window.getDrawable();
 
-    Client client(sheet);           // the client (your program) gets a (Drawable *)
-    window.setPageTurner(&client);  // the window must be given a (PageTurner *)
-                                    // I made the client a PageTurner, but it doesn't have to
-                                    // be that way.
-    return app.exec();
+	Client client(sheet);		   // the client (your program) gets a (Drawable *)
+	window.setPageTurner(&client);  // the window must be given a (PageTurner *)
+									// I made the client a PageTurner, but it doesn't have to
+									// be that way.
+	return app.exec();
 }
 

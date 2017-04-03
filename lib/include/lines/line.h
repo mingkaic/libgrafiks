@@ -15,13 +15,13 @@ namespace glib
 
 struct line_model : public shape_model
 {
-    line_model (point a, point b);
+	line_model (point a, point b);
 
-    double dx (void) const;
+	double dx (void) const;
 
-    double dy (void) const;
+	double dy (void) const;
 
-    double dz (void) const;
+	double dz (void) const;
 
 	color_grad dc (void) const;
 };
@@ -29,15 +29,15 @@ struct line_model : public shape_model
 class iliner : public ishaper
 {
 public:
-    iliner (DRAW drawable);
+	iliner (DRAW drawable);
 
-    virtual void draw (const shape_model* model) const;
-    
-    virtual void draw (const line_model* model) const = 0;
+	virtual void draw (const shape_model* model) const;
+
+	virtual void draw (const line_model* model) const = 0;
 
 protected:
-    // returns the degree of rotation to ensure octant 1 alignment
-    const transformation& octantize (const line_model& model) const;
+	// returns the degree of rotation to ensure octant 1 alignment
+	const transformation& octantize (const line_model& model) const;
 };
 
 }
