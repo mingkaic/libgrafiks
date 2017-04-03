@@ -14,12 +14,6 @@ convex_filler::convex_filler (DRAW draw) : ipolygoner(draw) {}
 
 void convex_filler::draw (const poly_model* model) const
 {
-	// backface culling
-	if (!model->cclockwise())
-	{
-		return;
-	}
-
     std::vector<point> vertices = model->ysortindices();
     point top = vertices.front();
     point bot = vertices.back();
@@ -58,16 +52,45 @@ void convex_filler::draw (const poly_model* model) const
 		int y = pt.getY();
 
         size_t yidx = (int) topy - y;
-
         if (lxs[yidx].getX() > x) lxs[yidx] = pt;
         if (rxs[yidx].getX() < x) rxs[yidx] = pt;
 
 		last = pt;
     }
+    std::function<double(std::vector<point>&,size_t)> correction =
+		[](std::vector<point>& xarr, size_t y)
+		{
+			point p1 = xarr[y-2];
+			point p2 = xarr[y-1];
+			double basex = p2.getX();
+			double basez = p2.getZ();
+			color_grad basec = p2.basecolor;
+
+			double dx = p1.getX() - basex;
+			double dz = p1.getZ() - basez;
+			color_grad dc = p1.basecolor - p2.basecolor;
+			basex += dx;
+			basez += dz;
+			basec += dc;
+			xarr[y] = {basex, (double) y, basez};
+			xarr[y].basecolor = (unsigned) basec;
+			return basex;
+		};
     for (size_t y = 0; y < dy; y++)
     {
-    	int lx = lxs[y].getX();
-		int rx = rxs[y].getX();
+    	double lx = lxs[y].getX();
+		double rx = rxs[y].getX();
+
+		if (lx > rx)
+		{
+			// error: correct by lerp
+			if (y < 2)
+			{
+				continue;
+			}
+			lx = correction(lxs, y);
+			rx = correction(rxs, y);
+		}
 
 		double dx = rxs[y].getX() - lxs[y].getX();
     	double dz = rxs[y].getZ() - lxs[y].getZ();
@@ -78,7 +101,6 @@ void convex_filler::draw (const poly_model* model) const
 
 		double basez = lxs[y].getZ();
 		color_grad basec = lxs[y].basecolor;
-
         for (int x = lx; x <= rx; x++)
         {
             this->drawable_(x, topy-y, basez, basec);

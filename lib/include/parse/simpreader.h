@@ -15,7 +15,6 @@
 #include "lib/include/lines/ddanalyzer.h"
 #include "lib/include/polygons/convexwirer.h"
 #include "lib/include/polygons/convexfiller.h"
-#include "lib/include/light/light.h"
 
 #ifndef LIBGRAFIKS_SIMPREADER_HPP
 #define LIBGRAFIKS_SIMPREADER_HPP
@@ -24,13 +23,6 @@ namespace glib
 {
 
 #define SCREEN_DIM 100
-
-enum SHADING_METHOD
-{
-	FLAT_SHAD = 0,
-	GOURAUD_SHAD,
-	PHONG_SHAD
-};
 
 class simp_reader : public ifreader
 {
@@ -45,9 +37,9 @@ public:
 
 	color surface_ = 0xffffffff;
 	std::shared_ptr<ishaper> goner_ = nullptr;
+	color_grad kd_ = 0xff010101;
 	double ks_ = 0.3;
 	double p_ = 8;
-	SHADING_METHOD shad_ = FLAT_SHAD;
 
 protected:
 	virtual std::unordered_set<char> whiteset (void) const
@@ -134,6 +126,14 @@ private:
 		color_grad cg;
 		double A;
 		double B;
+	};
+
+	struct SHADING_INST : public INSTRUCTION
+	{
+		SHADING_INST (SHADING_METHOD shad, size_t stackidx = 0) :
+			INSTRUCTION(stackidx), shad_(shad) {}
+
+		SHADING_METHOD shad_;
 	};
 
 	void get_instructions (RUN_INSTR run)

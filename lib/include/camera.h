@@ -19,12 +19,12 @@ class camera
 public:
 	camera (void) {}
 	// create an orthogonal camera space with far plane at z coordinate end
-	camera (double end, std::pair<double,double> screenWH, point center);
+	camera (double end, std::pair<double,double> xyscale, point center);
 
 	virtual void render (shape_render& rend) const;
 
 protected:
-	transformation to_window_;
+	transformation to_window_; // projective to screen
 	std::vector<plane> planes_;
 };
 
@@ -35,7 +35,7 @@ public:
 		double left, double right,
 		double up, double down,
 		double front, double back,
-		std::pair<double,double> screenWH,
+		std::pair<double,double> xyscale,
 		point center);
 
 	virtual void render (shape_render& rend) const;
@@ -43,9 +43,9 @@ public:
 	void transform (const transformation& tr);
 
 private:
-	transformation CTMP_; // camera to world
-	transformation world2cam_; // this brings models to projective coordinate
-	transformation Ktrans_; // this transforms from projective coordinate to screen coordinate
+	transformation CTMP_; // bring camera to world
+	transformation world2cam_; // bring world to camera
+	camera_transform Ktrans_; // camera to projective
 };
 
 }

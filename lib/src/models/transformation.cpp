@@ -66,9 +66,10 @@ void transformation::h_mul (const double in[4], double out[4]) const
 	}
 }
 
-camera_transform::camera_transform (double near)
+camera_transform::camera_transform (double projectz) :
+	projectz(projectz)
 {
-	data_[3][2] = 1/near;
+	data_[3][2] = 1/projectz;
 	data_[2][2] = data_[3][3] = 0;
 }
 

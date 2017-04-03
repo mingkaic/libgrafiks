@@ -90,30 +90,31 @@ std::string ifreader::delimited (std::istream& s, std::list<char>& q, std::unord
 	return accum;
 }
 
-std::string ifreader::exhaust_until (std::istream& s, std::list<char>& q, char delims) const
+std::string ifreader::exhaust_until (std::istream& s, std::list<char>& q, std::unordered_set<char> delims) const
 {
 	std::string accum = "";
 	bool found = false;
 	while (false == q.empty() && !found)
 	{
-		if (delims == q.front())
+		if (delims.find(q.front()) != delims.end())
 		{
 			found = true;
 		}
 		else
 		{
 			accum += q.front();
+			q.pop_front();
 		}
-		q.pop_front();
 	}
 	if (!found)
 	{
 		while (s.good() && !found)
 		{
 			char c = s.get();
-			if (delims == c)
+			if (delims.find(c) != delims.end())
 			{
 				found = true;
+				q.push_back(c);
 			}
 			else
 			{

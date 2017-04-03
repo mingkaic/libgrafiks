@@ -30,14 +30,24 @@ struct normal
 	normal (double x, double y, double z = 0) :
 		x(x), y(y), z(z) {}
 
+	void normalize (void);
+
 	double x;
 	double y;
 	double z;
 };
 
+normal operator + (const normal& a, const normal& b);
+
 normal operator - (const normal& a, const normal& b);
 
+normal operator * (double scalar, const normal& b);
+
+double dist (const normal& n);
+
 double dot (const normal& n1, const normal& n2);
+
+normal cross (const normal& a, const normal& b);
 
 struct point
 {

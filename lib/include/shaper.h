@@ -8,14 +8,22 @@
 #include <cmath>
 #include <memory>
 
-#include "models/model.h"
 #include "gutils.h"
+#include "models/model.h"
+#include "lib/include/light/light.h"
 
 #ifndef __GLIB_SHAPE__
 #define __GLIB_SHAPE__
 
 namespace glib
 {
+
+enum SHADING_METHOD
+{
+	FLAT_SHAD = 0,
+	GOURAUD_SHAD,
+	PHONG_SHAD
+};
 
 class ishaper
 {
@@ -31,18 +39,12 @@ protected:
 // rendering wrapper object
 struct shape_render
 {
+	void run (std::vector<const transformation*> trans, const camera_transform* Ktrans = nullptr);
+
 	std::shared_ptr<ishaper> shaper_ = nullptr;
 	shape_model* model_ = nullptr;
-
-	void run (void) {
-		assert(shaper_ && model_);
-		point p0 = model_->get_v(0);
-		if (0 > p0.getX() || 0 > p0.getY())
-		{
-			std::cout << "stop\n";
-		}
-		shaper_->draw(model_);
-	}
+	light sources_;
+	SHADING_METHOD shad_ = FLAT_SHAD;
 };
 
 }

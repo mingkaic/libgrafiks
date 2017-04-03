@@ -27,9 +27,9 @@ public:
 	}
 
 	// this * other
-	sqr_mat<N> matmul (const sqr_mat<N>& other) const;
+	virtual sqr_mat<N> matmul (const sqr_mat<N>& other) const;
 
-	sqr_mat<N> inverse (void) const;
+	virtual sqr_mat<N> inverse (void) const;
 
 	sqr_mat<N> transpose (void) const;
 

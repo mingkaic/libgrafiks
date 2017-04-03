@@ -23,9 +23,9 @@ public:
 	transformation (const sqr_mat<4>& other) :
 		sqr_mat<4>(other) {}
 
-	void mul (double& x, double& y, double& z) const;
+	virtual void mul (double& x, double& y, double& z) const;
 
-	void mul (double& x, double& y, double& z, double& h) const;
+	virtual void mul (double& x, double& y, double& z, double& h) const;
 
 	// treat as homogenous
 	void mul (const double in[3], double out[3]) const;
@@ -35,10 +35,44 @@ public:
 	void h_mul (const double in[4], double out[4]) const;
 };
 
+// no matmuling, only mul
 class camera_transform : public transformation
 {
 public:
-	camera_transform (double near);
+	camera_transform (double projectz);
+
+	virtual void mul (double& x, double& y, double& z) const
+	{
+		double zz = z;
+		double h = 1;
+		transformation::mul(x, y, z, h);
+		x /= h;
+		y /= h;
+		z = zz;
+	}
+
+	virtual void mul (double& x, double& y, double& z, double& h) const
+	{
+		double zz = z;
+		transformation::mul(x, y, z, h);
+		x /= std::abs(h);
+		y /= std::abs(h);
+		h = 1;
+		z = zz;
+	}
+
+	void rmul (double& x, double& y, double& z, double& h) const
+	{
+		x *= std::abs(z) / projectz;
+		y *= std::abs(z) / projectz;
+	}
+
+	virtual sqr_mat<4> matmul (const sqr_mat<4>& other) const { return other; }
+
+	virtual sqr_mat<4> inverse (void) const { return *this; }
+
+private:
+	double projectz;
 };
 
 class scale : public transformation

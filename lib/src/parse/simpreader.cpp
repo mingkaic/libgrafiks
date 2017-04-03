@@ -81,8 +81,9 @@ void simp_reader::execute (point centeryon, size_t width, size_t height)
 	point centerhither = centeryon;
 	centerhither.z = 0;
 	// orthogonal cs to screen
-	camera* cam = new camera(end, {width, height}, centerhither);
+	camera* cam = new camera(end, {width/2, height/2}, centerhither);
 	light sources;
+	SHADING_METHOD shad = FLAT_SHAD;
 
 	for (INSTRUCTION* i : instructions_)
 	{
@@ -101,14 +102,8 @@ void simp_reader::execute (point centeryon, size_t width, size_t height)
         {
 			// transform in order of ctf
 			r->render_.model_->transform(ctf);
-
-			// gaurad shade with ambience
-			r->render_.model_->trans_points(
-			[&sources](point& c)
-			{
-				c.basecolor = sources(c.getX(), c.getY(), c.getZ(), c.basecolor, c.n);
-			});
-
+			r->render_.sources_ = sources;
+			r->render_.shad_ = shad;
 			shapes.push_back(r->render_);
 		}
 		else if (TRANSFORM* t = dynamic_cast<TRANSFORM*>(i))
@@ -122,7 +117,7 @@ void simp_reader::execute (point centeryon, size_t width, size_t height)
 				camInst->left_, camInst->right_,
 				camInst->top_, camInst->down_,
 				camInst->front_, camInst->back_,
-				{width, height}, centerhither);
+				{width/2, height/2}, centerhither);
 			cam = proj;
 			proj->transform(ctf);
 		}
@@ -134,7 +129,11 @@ void simp_reader::execute (point centeryon, size_t width, size_t height)
 		{
 			double x = 0, y = 0, z = 0;
 			ctf.mul(x, y, z);
-			sources.srcs_.push_back(light::bulb{lsrc->A, lsrc->B, normal(x, y, z), lsrc->cg});
+			sources.srcs_.push_back(std::make_shared<light::bulb>(lsrc->A, lsrc->B, normal(x, y, z), lsrc->cg));
+		}
+		else if (SHADING_INST* shadinst = dynamic_cast<SHADING_INST*>(i))
+		{
+			shad = shadinst->shad_;
 		}
 	}
 
@@ -142,6 +141,7 @@ void simp_reader::execute (point centeryon, size_t width, size_t height)
 	{
 		cam->render(rends);
 	}
+	delete cam;
 }
 
 // implements a pseudo tokenizer that implies partial information on grammar (otherwise we'll need regex for numerics)
@@ -151,14 +151,23 @@ void simp_reader::tokenize (std::istream& s)
 	std::list<char> lhqueue; // look ahead queue
 	while (s.good())
 	{
-		char c = s.get();
+		char c;
+		if (lhqueue.empty())
+		{
+			c = s.get();
+		}
+		else
+		{
+			c = lhqueue.front();
+			lhqueue.pop_front();
+		}
 		std::string lexeme = "";
 		SIMP_TOK token = INVALID;
 		switch(c)
 		{
 			case '#': // comment
 				// skip until next new line
-				exhaust_until(s, lhqueue, '\n');
+				exhaust_until(s, lhqueue, {'\n'});
 				break;
 			case '{':
 				lexeme.push_back(c);
@@ -173,13 +182,13 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = SCALE;
 					// look at format <x>,<y>,<z>
-					lexeme = exhaust_until(s, lhqueue, '\n');
+					lexeme = exhaust_until(s, lhqueue, {'#', '\n'});
 				}
 				else if (this->lookahead(s, lhqueue, "urface"))
 				{
 					token = SURFACE;
 					// expect format: (<r>,<g>,<b>) ks p
-					lexeme = exhaust_until(s, lhqueue, '\n');
+					lexeme = exhaust_until(s, lhqueue, {'#', '\n'});
 				}
 				break;
 			case 'r': // rotate
@@ -187,7 +196,7 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = ROTATE;
 					// look at format <axis> <angle>
-					lexeme = exhaust_until(s, lhqueue, '\n');
+					lexeme = exhaust_until(s, lhqueue, {'#', '\n'});
 				}
 				break;
 			case 't': // translate
@@ -195,7 +204,7 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = TRANSLATE;
 					// look at format <x>,<y>,<z>
-					lexeme = exhaust_until(s, lhqueue, '\n');
+					lexeme = exhaust_until(s, lhqueue, {'#', '\n'});
 				}
 				break;
 			case 'l': // line or light
@@ -204,13 +213,13 @@ void simp_reader::tokenize (std::istream& s)
 					token = LINE;
 					// look at format (<x>,<y>,<h>)(<x>,<y>,<h>)
 					// OR (<x>,<y>,<h>,<r>,<g>,<b>)(<x>,<y>,<h>,<r>,<g>,<b>)
-					lexeme = exhaust_until(s, lhqueue, '\n');
+					lexeme = exhaust_until(s, lhqueue, {'#', '\n'});
 				}
 				else if (this->lookahead(s, lhqueue, "ight"))
 				{
 					token = LIGHT;
 					// look at format <r> <g> <b> <A> <B>
-					lexeme = exhaust_until(s, lhqueue, '\n');
+					lexeme = exhaust_until(s, lhqueue, {'#', '\n'});
 				}
 				break;
 			case 'p': // polygon or phong
@@ -218,7 +227,7 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = POLYGON;
 					// look at format (<x>,<y>,<h>)(<x>,<y>,<h>),(<x>,<y>,<h>)
-					lexeme = exhaust_until(s, lhqueue, '\n');
+					lexeme = exhaust_until(s, lhqueue, {'#', '\n'});
 				}
 				else if (this->lookahead(s, lhqueue, "ong"))
 				{
@@ -238,7 +247,7 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = FILE;
 					// look at format "word"
-					lexeme = exhaust_until(s, lhqueue, '\n');
+					lexeme = exhaust_until(s, lhqueue, {'#', '\n'});
 				}
 				// this look ahead will jump to next space or end of match if match is wrong
 				else if (this->lookahead(s, lhqueue, "illed", false))
@@ -257,7 +266,7 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = CAMERA;
 					// expect format <xlow> <ylow> <xhigh> <yhigh> <hither> <yon>
-					lexeme = exhaust_until(s, lhqueue, '\n');
+					lexeme = exhaust_until(s, lhqueue, {'#', '\n'});
 				}
 				break;
 			case 'o': // obj
@@ -265,7 +274,7 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = OBJ;
 					// expect format "filename"
-					lexeme = exhaust_until(s, lhqueue, '\n');
+					lexeme = exhaust_until(s, lhqueue, {'#', '\n'});
 				}
 				break;
 			case 'a': // ambient
@@ -273,7 +282,7 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = AMBIENT;
 					// expect format: (<r>,<g>,<b>)
-					lexeme = exhaust_until(s, lhqueue, '\n');
+					lexeme = exhaust_until(s, lhqueue, {'#', '\n'});
 				}
 				break;
 			case 'd': // depth
@@ -281,7 +290,7 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = DEPTH;
 					// expect format: <near> <far> (<r>,<g>,<b>)
-					lexeme = exhaust_until(s, lhqueue, '\n');
+					lexeme = exhaust_until(s, lhqueue, {'#', '\n'});
 				}
 				break;
 			case 'g':
@@ -468,6 +477,10 @@ void simp_reader::parse (DRAW drawer)
                     to_point(pts[2], " ", filter, surface_)
                 };
                 poly_model* poly = new poly_model(respts);
+                poly->lerp_norm();
+                poly->kd_ = kd_;
+				poly->ks_ = ks_;
+				poly->p_ = p_;
 				inst = new RENDER(poly, goner_, pushcount);
 			}
 				break;
@@ -479,9 +492,9 @@ void simp_reader::parse (DRAW drawer)
 				simp_reader* reader = new simp_reader(directory_ + "/" + f);
 				reader->surface_ = surface_;
 				reader->goner_ = goner_;
+				reader->kd_ = kd_;
 				reader->ks_ = ks_;
 				reader->p_ = p_;
-				reader->shad_ = shad_;
 
 				reader->parse(drawerwrapper);
 				reader->get_instructions(
@@ -493,9 +506,9 @@ void simp_reader::parse (DRAW drawer)
 
 				surface_ = reader->surface_;
 				goner_ = reader->goner_;
+				kd_ = reader->kd_;
 				ks_ = reader->ks_;
 				p_ = reader->p_;
-				shad_ = reader->shad_;
 			}
 				break;
 			case WIRE:
@@ -536,11 +549,21 @@ void simp_reader::parse (DRAW drawer)
                 if (!objs.empty())
                 {
                     auto it = objs.begin();
-                    inst = new RENDER(*it, goner_, pushcount);
+					poly_model* poly = *it;
+					poly->lerp_norm();
+					poly->kd_ = kd_;
+					poly->ks_ = ks_;
+					poly->p_ = p_;
+                    inst = new RENDER(poly, goner_, pushcount);
                     it++;
                     for (auto et = objs.end(); it != et; it++)
                     {
-                        instructions_.push_back(new RENDER(*it, goner_, pushcount));
+                    	poly = *it;
+						poly->lerp_norm();
+						poly->kd_ = kd_;
+						poly->ks_ = ks_;
+						poly->p_ = p_;
+                        instructions_.push_back(new RENDER(poly, goner_, pushcount));
                     }
                 }
 				surface_ = reader.basecolor_;
@@ -611,8 +634,8 @@ void simp_reader::parse (DRAW drawer)
 				{
 					throw std::exception(); // todo: better exception: invalid syntax
 				}
-				color_grad cg = to_rgb(nfc[0], " ", filter);
-				surface_ = color(255*cg.r, 255*cg.g, 255*cg.b);
+				kd_ = to_rgb(nfc[0], " ", filter);
+				surface_ = color(255*kd_.r, 255*kd_.g, 255*kd_.b);
 				if (nnfc > 1)
 				{
 					std::vector<std::string> vals = this->split(nfc[1], " ");
@@ -645,17 +668,17 @@ void simp_reader::parse (DRAW drawer)
 				break;
 			case FLAT: // todo: perform shading operations
 			{
-				shad_ = FLAT_SHAD;
+				inst = new SHADING_INST(FLAT_SHAD);
 			}
 				break;
 			case GOURAUD:
 			{
-				shad_ = GOURAUD_SHAD;
+				inst = new SHADING_INST(GOURAUD_SHAD);
 			}
 				break;
 			case PHONG:
 			{
-				shad_ = PHONG_SHAD;
+				inst = new SHADING_INST(PHONG_SHAD);
 			}
 				break;
 			default: // ignore INVALID

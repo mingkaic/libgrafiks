@@ -5,9 +5,32 @@
 namespace glib
 {
 
+void normal::normalize (void)
+{
+	double d = dist(*this);
+	x /= d;
+	y /= d;
+	z /= d;
+}
+
+normal operator + (const normal& a, const normal& b)
+{
+	return normal{a.x + b.x, a.y + b.y, a.z + b.z};
+}
+
 normal operator - (const normal& a, const normal& b)
 {
 	return normal{a.x - b.x, a.y - b.y, a.z - b.z};
+}
+
+normal operator * (double scalar, const normal& b)
+{
+	return normal(b.x * scalar, b.y * scalar, b.z * scalar);
+}
+
+double dist (const normal& n)
+{
+	return std::sqrt(n.x * n.x + n.y * n.y + n.z * n.z);
 }
 
 double dot (const normal& n1, const normal& n2)
@@ -15,12 +38,20 @@ double dot (const normal& n1, const normal& n2)
 	return n1.x * n2.x + n1.y * n2.y + n1.z * n2.z;
 }
 
+normal cross (const normal& a, const normal& b)
+{
+	return normal(
+		a.y * b.z - a.z * b.y,
+		a.z * b.x - a.x * b.z,
+		a.x * b.y - a.y * b.x);
+}
+
 point cross (const point& lhs, const point& rhs)
 {
 	return {
 		lhs.getY() * rhs.getZ() - rhs.getY() * lhs.getZ(),
 		lhs.getZ() * rhs.getX() - rhs.getZ() * lhs.getX(),
-		lhs.getX() *  rhs.getY() - rhs.getX() * lhs.getY()
+		lhs.getX() * rhs.getY() - rhs.getX() * lhs.getY()
 	};
 }
 

@@ -1,17 +1,27 @@
-ambient (1, 1, 1)
+ambient (0.2, 0, 0)
 surface (1, 1, 1)
-depth 0 60 (0, 0, 0)
+# depth 0 60 (0, 0, 0)
 
 {
-    translate 10 10 -30
-    rotate X -15
-    rotate Y 15
+    line (0 0 0) (0 0 1)
+    light 3 3 3 0 0.1
+}
+
+{
+    translate 0 0 -30
+    translate 30 0 0
+    translate 0 30 0
+    rotate X -30
+    rotate Y 30
     camera -1.2 -1.2 1.2 1.2 0.1 200
 }
 
-# translate 10 -10 0
-# rotate Y -45
-# rotate X 21
-# obj "airboat"
-wire
-file "hypercube"
+translate 0 0 50
+# rotate X 45
+# rotate Y 45
+# scale 10, 10, 10
+# translate -0.5 -0.5 -0.5
+# file "cube"
+
+scale 0.3 0.3 0.3
+obj "teapot"

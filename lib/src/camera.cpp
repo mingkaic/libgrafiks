@@ -9,11 +9,11 @@
 namespace glib
 {
 
-camera::camera (double end, std::pair<double,double> screenWH, point center)
+camera::camera (double end, std::pair<double,double> xyscale, point center)
 {
 	to_window_ = translate(center).matmul(
-		scale(point(screenWH.first  /(2*DEFAULT_SCREEN_DIM),
-			-screenWH.second/(2*DEFAULT_SCREEN_DIM), 1)));
+		scale(point(xyscale.first  /DEFAULT_SCREEN_DIM,
+			-xyscale.second/ DEFAULT_SCREEN_DIM, 1)));
 	planes_ =
 	{
 		plane({-100, 0, 0}, {1, 0, 0}), // left
@@ -30,7 +30,7 @@ void camera::render (shape_render& rend) const
 	if (!rend.model_->clip_planes(planes_))
 	{
 		rend.model_->transform(to_window_);
-		rend.run();
+		rend.run({&to_window_});
 	}
 }
 
@@ -38,14 +38,14 @@ projective_cam::projective_cam (
 	double left, double right,
 	double up, double down,
 	double front, double back,
-	std::pair<double,double> screenWH,
+	std::pair<double,double> xyscale,
 	point center) :
 Ktrans_(camera_transform(1))
 {
 	to_window_ = translate(center).matmul(
 		scale(point{
-			2*screenWH.first/(right-left),
-			-2*screenWH.second/(up-down), 1}));
+			4*xyscale.first/(right-left),
+			-4*xyscale.second/(up-down), 1}));
 	auto dist = [](double val)
 	{
 		return sqrt(1 + val*val);
@@ -64,21 +64,14 @@ void projective_cam::render (shape_render& rend) const
 {
 	if (!rend.model_->clip_planes(planes_))
 	{
+		point cpy = rend.model_->get_v(0);
+		std::cout << cpy.getX() << "," << cpy.getY() << "," << cpy.getZ() << std::endl;
+		std::cout << cpy.n.x << "," << cpy.n.y << "," << cpy.n.z << std::endl;
 		// move world to camera
 		rend.model_->transform(world2cam_);
-		// cache model's z coord
-		std::vector<point> zs;
-		for (size_t i = 0, n = rend.model_->n_vertices();
-			 i < n; i++)
-		{
-			point p = rend.model_->get_v(i);
-			zs.push_back({0, 0, p.z * p.z, 0});
-		}
 		rend.model_->transform(Ktrans_);
-		// add z coord to z
-		rend.model_->add_point(zs);
 		rend.model_->transform(to_window_);
-		rend.run();
+		rend.run({&to_window_, &world2cam_}, &Ktrans_);
 	}
 }
 

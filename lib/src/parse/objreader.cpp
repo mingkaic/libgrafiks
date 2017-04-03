@@ -38,37 +38,46 @@ void obj_reader::tokenize (std::istream& s)
 	std::list<char> lhqueue; // look ahead queue
 	while (s.good())
 	{
-		char c = s.get();
+		char c;
+		if (lhqueue.empty())
+		{
+			c = s.get();
+		}
+		else
+		{
+			c = lhqueue.front();
+			lhqueue.pop_front();
+		}
 		std::string lexeme = "";
 		OBJ_TOK token = INVALID;
 		switch(c)
 		{
 			case '#': // comment
 				// skip until next new line
-				exhaust_until(s, lhqueue, '\n');
+				exhaust_until(s, lhqueue, {'\n'});
 				break;
 			case 'v': // vertex or vertex normal
 				if (this->lookahead(s, lhqueue, "n", false))
 				{
 					token = VERTEX_NORMAL;
-					lexeme = exhaust_until(s, lhqueue, '\n');
+					lexeme = exhaust_until(s, lhqueue, {'#', '\n'});
 				}
 				else if (this->lookahead(s, lhqueue, "t", false))
 				{
 					// treat vt as a comment
-					exhaust_until(s, lhqueue, '\n');
+					exhaust_until(s, lhqueue, {'#', '\n'});
 				}
 				else if (this->lookahead(s, lhqueue, " "))
 				{
 					token = VERTEX;
-					lexeme = exhaust_until(s, lhqueue, '\n');
+					lexeme = exhaust_until(s, lhqueue, {'#', '\n'});
 				}
 				break;
 			case 'f': // face
 				if (this->lookahead(s, lhqueue, " "))
 				{
 					token = FACE;
-					lexeme = exhaust_until(s, lhqueue, '\n');
+					lexeme = exhaust_until(s, lhqueue, {'#', '\n'});
 				}
 				break;
 			default: // ignore
@@ -179,7 +188,7 @@ void obj_reader::parse (DRAW drawer)
 						}
 						else
 						{
-							p = pts[vidx-1];
+							p = pts[vidx - 1];
 						}
 						if (nums.size() >= 2)
 						{
@@ -190,7 +199,7 @@ void obj_reader::parse (DRAW drawer)
 							}
 							else
 							{
-								p.n = norms[nidx];
+								p.n = norms[nidx - 1];
 							}
 						}
 						vts.push_back(p);
