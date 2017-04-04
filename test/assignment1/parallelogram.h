@@ -9,7 +9,7 @@ struct paralleogram_test : public itester
 	paralleogram_test (void) {}
 	paralleogram_test (size_t nparalells) : nparallel_(nparalells) {}
 
-	virtual void exec (std::vector<glib::ishaper*>& shapers, const glib::point& topcorner, size_t width, size_t height)
+    virtual void exec (std::vector<glib::ishaper*>& shapers, const glib::point& topcorner, size_t, size_t)
 	{
 		double x = topcorner.getX();
 		double y = topcorner.getY();

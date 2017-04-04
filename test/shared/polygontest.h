@@ -9,11 +9,11 @@
 
 struct polygon_test : public itester
 {
-	unsigned int randomColor (void)
+    uint32_t randomColor (void)
 	{
 		std::random_device rd;
 		std::mt19937 gen(rd());
-		std::uniform_real_distribution<> dis(0xff0f0f0f, 0xffffffff);
+        std::uniform_int_distribution<uint32_t> dis(0xff0f0f0f, 0xffffffff);
 		return dis(gen);
 	}
 
@@ -22,17 +22,17 @@ struct polygon_test : public itester
 	{
 		std::random_device rd;
 		std::mt19937 gen(rd());
-		size_t edgex = topcorner.getX();
-		size_t edgey = topcorner.getY();
+        size_t edgex = (size_t)topcorner.getX();
+        size_t edgey = (size_t)topcorner.getY();
 		glib::ishaper* shaper = shapers[0];
 
 		switch (scene)
 		{
 			case 0: // starburst
 			{
-				size_t centerx = edgex + width / 2;
-				size_t centery = edgey + height / 2;
-				glib::point origin(centerx, centery);
+                size_t centerx = (size_t)(edgex + width / 2);
+                size_t centery = (size_t)(edgey + height / 2);
+                glib::point origin((double) centerx, (double) centery);
 				std::vector<glib::point> pts = starburst_vertices(centerx, centery, 125, 90);
 		        size_t i = 0;
                 for (i = 0; i < pts.size() - 1; i++)
@@ -54,7 +54,7 @@ struct polygon_test : public itester
             break;
             case 1: // square test
             {
-                const size_t margin = 5; // 5 px
+                const double margin = 5; // 5 px
                 double sqrwidth = (width-10*margin)/9;
                 double sqrheight = (height-10*margin)/9;
                 for (size_t i = 0; i < 9; i++)
@@ -84,7 +84,7 @@ struct polygon_test : public itester
             case 2: // crazy square test
             {
                 std::uniform_real_distribution<> dis(-12, 12);
-                const size_t margin = 5; // 5 px
+                const double margin = 5; // 5 px
                 double sqrwidth = (width-10*margin)/9;
                 double sqrheight = (height-10*margin)/9;
                 for (size_t i = 0; i < 9; ++i)

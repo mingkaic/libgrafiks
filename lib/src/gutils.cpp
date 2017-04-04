@@ -158,9 +158,9 @@ unsigned int opacity_transform (unsigned int c, double opacity)
 {
 	uint8_t r, g, b;
 	rgb_unpack(c, r, g, b);
-	r = r * opacity;
-	g = g * opacity;
-	b = b * opacity;
+    r = (uint8_t)std::min(255.0, r * opacity);
+    g = (uint8_t)std::min(255.0, g * opacity);
+    b = (uint8_t)std::min(255.0, b * opacity);
 	c = (0xff << 24) + (r << 16) + (g << 8) + b;
 	return c;
 }

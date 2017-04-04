@@ -29,12 +29,9 @@ void bresen_liner::draw (const line_model* model) const
 		lrrr = new color_lerper(to, from);
 	}
 
-	double dz = model->dz();
 	color_grad dc = model->dc();
 
 	forward.mul(lrrr->dx_, lrrr->dy_, dummyz); // transform to oct1
-
-	double mz = lrrr->dz_ / lrrr->dx_;
 
 	point origin = model->get_v(0);
 	double centerx = origin.getX();

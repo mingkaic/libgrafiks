@@ -33,7 +33,7 @@ public:
 
 	size_t get_height (void) const
 	{
-		return botright_.getY() - topleft_.getY();
+        return (size_t) (botright_.getY() - topleft_.getY());
 	}
 
     std::pair<glib::point, glib::point> get_pts (void) const { return std::pair<glib::point, glib::point>(topleft_, botright_); }

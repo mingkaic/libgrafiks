@@ -16,18 +16,18 @@ public:
 			tester(width, height, 1)
 	{
 		zbuffer = new double[width * height];
-		srand(time(NULL));
+        srand((unsigned int)time(NULL));
 	}
 
 	~a3test (void) {}
 
-	virtual void run (size_t testid, Drawable* drawable, PANEL_DRAW panel_drawer) const
+    virtual void run (size_t, Drawable* drawable, PANEL_DRAW panel_drawer) const
 	{
 		size_t pwidth = panels_[0].get_width();
 		size_t pheight = panels_[0].get_height();
 
 		DRAW zbufferdepth =
-			[this, drawable, pwidth, pheight](int x, int y, double z, double zp, unsigned c, glib::normal& n)
+            [this, drawable, pwidth, pheight](int x, int y, double, double zp, unsigned c, glib::normal&)
 			{
 				double csz = 1/zp;
 				size_t idx = y * width_ + x;

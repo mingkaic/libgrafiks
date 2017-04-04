@@ -7,8 +7,8 @@
 #include <vector>
 #include <unordered_map>
 
-#include "gutils.h"
-#include "models/transformation.h"
+#include "lib/include/gutils.h"
+#include "lib/include/models/transformation.h"
 
 #ifndef __GLIB_MODEL__
 #define __GLIB_MODEL__

@@ -14,8 +14,8 @@ struct random_test : public itester
 		double y = topcorner.getY();
 		for (size_t i = 0; i < nlines_; i++)
 		{
-			unsigned int basecolor = std::rand() % 0x00f0f0f0;
-			basecolor += 0xff0f0f0f0f; // base color must be above 0x0f per color channel
+            uint32_t basecolor = std::rand() % 0x00f0f0f0;
+            basecolor = basecolor + 0xff0f0f0f; // base color must be above 0x0f per color channel
 			size_t x1 = std::rand() % 300;
 			size_t y1 = std::rand() % 300;
 			size_t x2 = std::rand() % 300;

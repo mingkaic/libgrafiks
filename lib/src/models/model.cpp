@@ -43,9 +43,7 @@ void shape_model::add_point (const std::vector<point>& pts)
 
 bool shape_model::clip_planes (const std::vector<plane>& planes)
 {
-	size_t nv = vertices_.size();
 	// find all edges
-
 	for (const plane& p : planes)
 	{
 		const normal& norm = p.norm_;

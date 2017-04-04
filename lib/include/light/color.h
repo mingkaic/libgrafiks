@@ -3,6 +3,7 @@
 //
 
 #include <cstdlib>
+#include <cstdint>
 
 #ifndef LIBGRAFIKS_COLOR_HPP
 #define LIBGRAFIKS_COLOR_HPP

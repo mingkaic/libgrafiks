@@ -104,8 +104,7 @@ template <size_t N>
 void sqr_mat<N>::adjoint (const double in[N][N], double out[N][N]) const
 {
 	if (N == 1) { out[0][0] = 1; return; }
-	double cof[N][N];
-	int sign = 1;
+        double cof[N][N];
 	for (size_t y = 0; y < N; y++)
 	{
 		for (size_t x = 0; x < N; x++)

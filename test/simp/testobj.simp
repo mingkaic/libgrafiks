@@ -26,9 +26,9 @@ translate 0 0 80
 # translate -0.5 -0.5 -0.5
 # file "cube"
 
-# scale 0.8 0.8 0.8
-# obj "teapot"
+scale 0.8 0.8 0.8
+obj "teapot"
 
-rotate Y 87.5
-scale 5 5 5
-file "circle"
+# rotate Y 87.5
+# scale 5 5 5
+# file "circle"

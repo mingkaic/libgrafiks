@@ -5,7 +5,6 @@
 #include <queue>
 
 #include "lib/include/polygons/polygon.h"
-
 #include "lib/include/parse/ifreader.h"
 
 #ifndef LIBGRAFIKS_OBJREADER_HPP

@@ -9,6 +9,7 @@
 #include <utility>
 #include <functional>
 #include <iostream>
+#include <algorithm>
 
 #include "lib/include/light/color.h"
 
@@ -65,7 +66,7 @@ struct point
 	double getX (void) const { return x / h; }
 	double getY (void) const { return y / h; }
 	double getZ (void) const { return z / h; }
-	double zp;
+    double zp = 0;
 	normal n;
 	color basecolor = 0xffffffff; // white todo: make flag value or optional
 };
@@ -119,7 +120,7 @@ struct lerper
 		dzp_ = to.zp - from.zp;
 	}
 
-	virtual double step (double arg, double& x, double& y, double& z, double& zp, color_grad& c, normal& n, ARG signal = X)
+    virtual double step (double arg, double& x, double& y, double& z, double& zp, color_grad&, normal&, ARG signal = X)
 	{
 		double d;
 		switch (signal)
@@ -164,7 +165,7 @@ struct color_lerper : public lerper
 		dc_ = to.basecolor - from.basecolor;
 	}
 
-	virtual double step (double arg, double& x, double& y, double& z, double& zp, color_grad& c, normal& n, ARG signal = X)
+    virtual double step (double arg, double& x, double& y, double& z, double& zp, color_grad& c, normal& n, ARG signal = X)
 	{
 		double d = lerper::step(arg, x, y, z, zp, c, n, signal);
 		c += dc_ * d;

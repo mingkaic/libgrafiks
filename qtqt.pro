@@ -11,12 +11,12 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = qtqt
 TEMPLATE = app
 
-
 SOURCES += provided/main.cpp\
     provided/client.cpp \
     provided/window361.cpp \
     provided/renderarea361.cpp \
     test/assignment1/common.cpp \
+    lib/src/light/color.cpp \
     lib/src/gutils.cpp \
     lib/src/polygons/convexfiller.cpp \
     lib/src/polygons/convexwirer.cpp \
@@ -28,7 +28,11 @@ SOURCES += provided/main.cpp\
     lib/src/lines/antialias.cpp \
     lib/src/lines/bresenham.cpp \
     lib/src/lines/ddanalyzer.cpp \
-    lib/src/lines/line.cpp
+    lib/src/lines/line.cpp \
+    lib/src/camera.cpp \
+    lib/src/shaper.cpp \
+    lib/src/light/light.cpp \
+    lib/src/models/model.cpp
 
 HEADERS  += \
     provided/drawable.h \
@@ -39,13 +43,15 @@ HEADERS  += \
     test/panel.h \
     test/tester.h \
     test/shared/polygontest.h \
-    test/assignment2/a2test.h \
-    test/assignment2/triangletest.h \
     test/assignment1/a1test.h \
     test/assignment1/common.h \
     test/assignment1/parallelogram.h \
     test/assignment1/randomtest.h \
     test/assignment1/starburst.h \
+    test/assignment2/a2test.h \
+    test/assignment2/triangletest.h \
+    test/assignment3/a3test.h \
+    lib/include/light/color.h \
     lib/include/gutils.h \
     lib/include/shaper.h \
     lib/include/polygons/convexfiller.h \
@@ -61,15 +67,10 @@ HEADERS  += \
     lib/include/models/matrix.h \
     lib/include/models/model.h \
     lib/include/models/transformation.h \
-    test/assignment3/a3test.h
+    lib/include/camera.h \
+    lib/include/light/light.h
 
 DISTFILES += \
     lib/src/models/matrix.ipp \
-    test/simp/circleleft.simp \
-    test/simp/circleright.simp \
-    test/simp/equitriangle.simp \
-    test/simp/page4.simp \
-    test/simp/page5.simp \
-    test/simp/z0_face.simp
 
 

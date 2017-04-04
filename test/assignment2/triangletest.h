@@ -16,14 +16,14 @@ struct regulartri_test : public itester
 	virtual void exec (std::vector<glib::ishaper*>& shapers, const glib::point& topcorner, size_t width, size_t height)
 	{
 		assert(width >= lineLength_ * 2 && height >= lineLength_ * 2); // length requirement
-		size_t x = topcorner.getX() + width/2;
-		size_t y = topcorner.getY() + height/2;
+        size_t x = (size_t)(topcorner.getX() + width/2);
+        size_t y = (size_t)(topcorner.getY() + height/2);
 		glib::ishaper* shaper = shapers[0];
 
 		for (double color : colors_)
 		{
 			double z = rand() % 199;
-			uint8_t c = 255*color;
+            uint8_t c = (uint8_t) (255.0 * color);
 			unsigned base = (0xff << 24) + (c << 16) + (c << 8) + c;
 
 			double rotation1 = M_PI * (rand() % 120) / 180; // convert to radians
