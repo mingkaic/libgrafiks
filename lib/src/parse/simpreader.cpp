@@ -233,6 +233,7 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = PHONG;
 					lexeme = "phong";
+					exhaust_until(s, lhqueue, {'#', '\n'});
 				}
 				break;
 			case 'w': // wire
@@ -240,6 +241,7 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = WIRE;
 					lexeme = "wire";
+					exhaust_until(s, lhqueue, {'#', '\n'});
 				}
 				break;
 			case 'f': // file or fill
@@ -254,11 +256,13 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = FILL;
 					lexeme = "filled";
+					exhaust_until(s, lhqueue, {'#', '\n'});
 				}
 				else if (this->lookahead(s, lhqueue, "lat"))
 				{
 					token = FLAT;
 					lexeme = "flat";
+					exhaust_until(s, lhqueue, {'#', '\n'});
 				}
 				break;
 			case 'c': // camera
@@ -298,6 +302,7 @@ void simp_reader::tokenize (std::istream& s)
 				{
 					token = GOURAUD;
 					lexeme = "gouraud";
+					exhaust_until(s, lhqueue, {'#', '\n'});
 				}
 				break;
 			default: // ignore

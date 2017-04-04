@@ -58,10 +58,7 @@ bool shape_model::clip_planes (const std::vector<plane>& planes)
 				pt.getZ()
 			};
 			normal tpt = pn - p.pt_;
-			double dotres =
-				tpt.x * norm.x +
-				tpt.y * norm.y +
-				tpt.z * norm.z;
+			double dotres = dot(tpt, norm);
 			vstatus[&pt] = 0 <= dotres;
 		}
 

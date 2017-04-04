@@ -1,4 +1,4 @@
-ambient (0.2, 0, 0)
+# ambient (0.2, 0, 0)
 surface (1, 1, 1)
 # depth 0 60 (0, 0, 0)
 
@@ -15,13 +15,16 @@ surface (1, 1, 1)
     rotate Y 30
     camera -1.2 -1.2 1.2 1.2 0.1 200
 }
-
-translate 0 0 50
+# phong
+# gouraud
+# flat
+# wired
+translate 0 0 80
 # rotate X 45
 # rotate Y 45
 # scale 10, 10, 10
 # translate -0.5 -0.5 -0.5
 # file "cube"
 
-scale 0.3 0.3 0.3
+scale 0.8 0.8 0.8
 obj "teapot"

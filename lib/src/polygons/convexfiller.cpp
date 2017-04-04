@@ -124,6 +124,7 @@ void convex_filler::draw (const poly_model* model) const
 		color_grad basec = lxs[y].basecolor;
 		normal basen = lxs[y].n;
 		double fakey = y;
+
 		for (double x = left.x; x <= right.x; x++)
 //		for (double x = lx; x <= rx; x++)
 		{

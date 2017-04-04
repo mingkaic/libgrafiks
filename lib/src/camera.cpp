@@ -11,9 +11,10 @@ namespace glib
 
 camera::camera (double end, std::pair<double,double> xyscale, point center)
 {
+	double scaler = std::min(xyscale.first, xyscale.second);
 	to_window_ = translate(center).matmul(
-		scale(point(xyscale.first  /DEFAULT_SCREEN_DIM,
-			-xyscale.second/ DEFAULT_SCREEN_DIM, 1)));
+		scale(point(scaler  /DEFAULT_SCREEN_DIM,
+			-scaler / DEFAULT_SCREEN_DIM, 1)));
 	planes_ =
 	{
 		plane({-100, 0, 0}, {1, 0, 0}), // left
@@ -42,11 +43,18 @@ projective_cam::projective_cam (
 	point center) :
 Ktrans_(camera_transform(1))
 {
-	to_window_ = translate(center).matmul(
-		scale(point{
-			4*xyscale.first/(right-left),
-			-4*xyscale.second/(up-down), 1}));
-	auto dist = [](double val)
+	// account for dimensionality
+	double camwidth = right-left;
+	double camheight = up-down;
+	double scaler = std::min(xyscale.first/camwidth, xyscale.second/camheight);
+
+	double centerx = left + camwidth / 2;
+	double centery = down + camheight / 2;
+	translate camcorrect({-centerx, -centery, 0});
+	scale toscreen({2*scaler, -2*scaler, 1});
+	to_window_ = translate(center).matmul(toscreen.matmul(camcorrect));
+
+	std::function<double(double)> dist = [](double val)
 	{
 		return sqrt(1 + val*val);
 	};
@@ -80,7 +88,7 @@ void projective_cam::transform (const transformation& tr)
 		tr.mul(p.norm_.x, p.norm_.y, p.norm_.z);
 		p.norm_ = p.norm_ - p.pt_;
 	}
-	CTMP_ = CTMP_.matmul(tr);
+	CTMP_ = tr.matmul(CTMP_);
 	world2cam_ = CTMP_.inverse();
 }
 
