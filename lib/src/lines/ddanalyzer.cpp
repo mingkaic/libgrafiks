@@ -41,7 +41,7 @@ void dda_liner::draw (const line_model* model) const
 	{
 		double xi = x, yi = std::round(y);
 		backward.mul(xi, yi, dummyz);
-		this->drawable_(centerx + xi, centery + yi,
+		this->drawable_(centerx + xi, centery + yi, centerz,
 			centerz, centercolor, centern);
 		y += m;
 		centerz += mz;

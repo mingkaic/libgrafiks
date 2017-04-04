@@ -35,7 +35,7 @@ struct normal
 	double z;
 };
 
-#define DRAW std::function<void(int,int,int,unsigned,glib::normal&)>
+#define DRAW std::function<void(int,int,double,double,unsigned,glib::normal&)>
 
 normal operator + (const normal& a, const normal& b);
 
@@ -65,6 +65,7 @@ struct point
 	double getX (void) const { return x / h; }
 	double getY (void) const { return y / h; }
 	double getZ (void) const { return z / h; }
+	double zp;
 	normal n;
 	color basecolor = 0xffffffff; // white todo: make flag value or optional
 };
@@ -115,9 +116,10 @@ struct lerper
 		dx_ = to.getX() - from.getX();
 		dy_ = to.getY() - from.getY();
 		dz_ = to.getZ() - from.getZ();
+		dzp_ = to.zp - from.zp;
 	}
 
-	virtual double step (double arg, double& x, double& y, double& z, color_grad& c, normal& n, ARG signal = X)
+	virtual double step (double arg, double& x, double& y, double& z, double& zp, color_grad& c, normal& n, ARG signal = X)
 	{
 		double d;
 		switch (signal)
@@ -144,12 +146,14 @@ struct lerper
 			}
 				break;
 		}
+		zp += d * dzp_;
 		return d;
 	}
 
 	double dx_;
 	double dy_;
 	double dz_;
+	double dzp_;
 };
 
 struct color_lerper : public lerper
@@ -160,9 +164,9 @@ struct color_lerper : public lerper
 		dc_ = to.basecolor - from.basecolor;
 	}
 
-	virtual double step (double arg, double& x, double& y, double& z, color_grad& c, normal& n, ARG signal = X)
+	virtual double step (double arg, double& x, double& y, double& z, double& zp, color_grad& c, normal& n, ARG signal = X)
 	{
-		double d = lerper::step(arg, x, y, z, c, n, signal);
+		double d = lerper::step(arg, x, y, z, zp, c, n, signal);
 		c += dc_ * d;
 		return d;
 	}
@@ -178,9 +182,9 @@ struct normal_lerper : public color_lerper
 		dn_ = to.n - from.n;
 	}
 
-	virtual double step (double arg, double& x, double& y, double& z, color_grad& c, normal& n, ARG signal = X)
+	virtual double step (double arg, double& x, double& y, double& z, double& zp, color_grad& c, normal& n, ARG signal = X)
 	{
-		double d = color_lerper::step(arg, x, y, z, c, n, signal);
+		double d = color_lerper::step(arg, x, y, z, zp, c, n, signal);
 		n = n + d * dn_;
 		return d;
 	}

@@ -402,9 +402,9 @@ void simp_reader::parse (DRAW drawer)
 
 	// phong shade with depth
 	DRAW drawerwrapper =
-	[drawer] (int x, int y, int z, unsigned c, normal& n)
+	[drawer] (int x, int y, double z, double zp, unsigned c, normal& n)
 	{
-		drawer(x, y, z, c, n);
+		drawer(x, y, z, zp, c, n);
 	};
 	std::shared_ptr<ishaper> liner = std::shared_ptr<ishaper>(new dda_liner(drawerwrapper));
 	if (nullptr == goner_)
@@ -546,7 +546,7 @@ void simp_reader::parse (DRAW drawer)
                 f += ".obj";
                 obj_reader reader(directory_ + "/" + f);
                 reader.basecolor_ = surface_;
-                reader.parse([](int,int,int,unsigned,normal&) {});
+                reader.parse([](int,int,double,double,unsigned,normal&) {});
                 reader.get_objects(objs);
                 if (!objs.empty())
                 {
@@ -593,26 +593,27 @@ void simp_reader::parse (DRAW drawer)
 				color_grad cg = to_rgb(nfc[1], " ", filter);
 				color depth(255*cg.r, 255*cg.g, 255*cg.b);
 				drawerwrapper =
-				[near, far, depth, drawer] (int x, int y, int z, unsigned c, normal& n)
+				[near, far, depth, drawer] (int x, int y, double z, double zp, unsigned c, normal& n)
 				{
+					double csz = 1/zp;
 					assert(far >= near);
-					if (z < near || far == near)
+					if (csz < near || far == near)
 					{
-						drawer(x, y, z, c, n);
+						drawer(x, y, z, zp, c, n);
 					}
-					else if (z > far)
+					else if (csz > far)
 					{
-						drawer(x, y, z, (unsigned)depth, n);
+						drawer(x, y, z, zp, (unsigned)depth, n);
 					}
 					else
 					{
 						color_grad cc(c);
-						double fog = (far - z) / (far - near);
+						double fog = (far - csz) / (far - near);
 						double invfog = 1 - fog;
 						cc.r = fog * cc.r + invfog * depth.r;
 						cc.g = fog * cc.g + invfog * depth.g;
 						cc.b = fog * cc.b + invfog * depth.b;
-						drawer(x, y, z, (unsigned)cc, n);
+						drawer(x, y, z, zp, (unsigned)cc, n);
 					}
 				};
 				if (is_fill)

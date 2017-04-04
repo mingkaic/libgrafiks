@@ -15,7 +15,7 @@ public:
 	width_(width), height_(height),
 			tester(width, height, 1)
 	{
-		zbuffer = new size_t[width * height];
+		zbuffer = new double[width * height];
 		srand(time(NULL));
 	}
 
@@ -26,30 +26,31 @@ public:
 		size_t pwidth = panels_[0].get_width();
 		size_t pheight = panels_[0].get_height();
 
-		DRAW zbufferdepthgreen =
-			[this, drawable, pwidth, pheight](int x, int y, int z, unsigned c, glib::normal& n)
+		DRAW zbufferdepth =
+			[this, drawable, pwidth, pheight](int x, int y, double z, double zp, unsigned c, glib::normal& n)
 			{
+				double csz = 1/zp;
 				size_t idx = y * width_ + x;
 				if (x > PADDING && y >=PADDING &&
 					x < PADDING + pwidth &&
 					y < PADDING + pheight &&
-					z < zbuffer[idx])
+					csz < zbuffer[idx])
 				{
 					drawable->setPixel(x, y, c);
-					zbuffer[idx] = z;
+					zbuffer[idx] = csz;
 				}
 			};
 
-		std::fill(zbuffer, zbuffer + (width_ * height_), -1);
+		std::fill(zbuffer, zbuffer + (width_ * height_), std::numeric_limits<double>::max());
 		panel_drawer(this->panels_[0]);
 		glib::simp_reader reader(a3test::simpfile);
-		reader.parse(zbufferdepthgreen);
+		reader.parse(zbufferdepth);
 		reader.execute({(double)width_/2, (double)height_/2, 200}, pwidth, pheight);
 		drawable->updateScreen();
 	}
 
 private:
-	size_t* zbuffer;
+	double* zbuffer;
 	size_t width_;
 	size_t height_;
 };

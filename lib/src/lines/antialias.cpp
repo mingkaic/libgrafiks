@@ -82,11 +82,11 @@ void aalias_liner::draw (const line_model* model) const
 		backward.mul(x0, y0, dummyz);
 		backward.mul(x1, y1, dummyz);
 		backward.mul(x2, y2, dummyz);
-		this->drawable_(centerx + x0, centery + y0, centerz,
+		this->drawable_(centerx + x0, centery + y0, centerz, centerz,
 			opacity_transform(centercolor, intensity(std::abs(dc0) * t)), centern);
-		this->drawable_(centerx + x1, centery + y1, centerz,
+		this->drawable_(centerx + x1, centery + y1, centerz, centerz,
 			opacity_transform(centercolor, intensity(std::abs(dc1) * t)), centern);
-		this->drawable_(centerx + x2, centery + y2, centerz,
+		this->drawable_(centerx + x2, centery + y2, centerz, centerz,
 			opacity_transform(centercolor, intensity(std::abs(dc2) * t)), centern);
 		double opacity;
 		// look 2 pixels above center if pixel center is below model center
@@ -102,7 +102,7 @@ void aalias_liner::draw (const line_model* model) const
 			opacity = intensity(std::abs(dc0 - 2) * t);
 		}
 		backward.mul(x3, y3, dummyz);
-		this->drawable_(centerx + x3, centery + y3, centerz,
+		this->drawable_(centerx + x3, centery + y3, centerz, centerz,
 			opacity_transform(centercolor, opacity), centern);
 
 		y += m;

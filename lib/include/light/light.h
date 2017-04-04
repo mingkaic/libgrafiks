@@ -16,7 +16,6 @@ namespace glib
 
 struct light
 {
-static double super;
 	struct bulb
 	{
 		bulb (double A, double B, normal p, color_grad si) :
@@ -64,11 +63,6 @@ static double super;
 			normal L = bu->p_ - surface;
 			double dl = dist(L);
 			double fatti = 1 / (bu->A + bu->B*dl);
-if (std::abs(super - fatti) > 0.05 && super != 0)
-{
-	std::cout << "stop\n";
-}
-super = fatti;
 			L.normalize();
 
 			double diff = dot(L, N);

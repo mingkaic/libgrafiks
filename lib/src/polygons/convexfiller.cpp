@@ -7,7 +7,7 @@
 
 namespace glib
 {
-double light::super = 0;
+
 #define TOP std::numeric_limits<double>::max()
 
 convex_filler::convex_filler (DRAW draw) : ipolygoner(draw) {}
@@ -24,10 +24,11 @@ void convex_filler::draw (const poly_model* model) const
 	std::vector<point> rxs(dy, {0, 0, 0});
 
 	// use bresen_liner for fast and accurate handling of bad slopes
-	bresen_liner liner([&lxs, &rxs, topy, dy](int x, int y, int z, unsigned color, normal& n)
+	bresen_liner liner([&lxs, &rxs, topy, dy](int x, int y, double z, double zp, unsigned color, normal& n)
 	{
 		assert(y <= std::ceil(topy));
 		point p = {(double)x, (double)y, (double)z};
+		p.zp = zp;
 		p.basecolor = color;
 		p.n = n;
 		size_t yidx = (int) topy-y;
@@ -70,9 +71,10 @@ void convex_filler::draw (const poly_model* model) const
 			double basex = p2.getX();
 			double basey = y-1;
 			double basez = p2.getZ();
+			double basezp = p2.zp;
 			color_grad basec = p2.basecolor;
 			normal basen = p2.n;
-			nl.step(y, basex, basey, basez, basec, basen, lerper::ARG::Y);
+			nl.step(y, basex, basey, basez, basezp, basec, basen, lerper::ARG::Y);
 
 			xarr[y] = {basex, (double) y, basez};
 			xarr[y].basecolor = (unsigned) basec;
@@ -80,7 +82,6 @@ void convex_filler::draw (const poly_model* model) const
 			return basex;
 		};
 
-light::super = 0;
 	for (size_t y = 0; y < dy; y++)
 	{
 		point& left = lxs[y];
@@ -112,6 +113,7 @@ light::super = 0;
 		}
 
 		double basez = lxs[y].getZ();
+		double basezp = lxs[y].zp;
 		color_grad basec = lxs[y].basecolor;
 		normal basen = lxs[y].n;
 		double fakey = y;
@@ -120,18 +122,18 @@ light::super = 0;
 		{
 			if (model->face_color_) // FLAT shading
 			{
-				this->drawable_(x, topy-y, basez, (unsigned) *model->face_color_, basen);
+				this->drawable_(x, topy-y, basez, basezp, (unsigned) *model->face_color_, basen);
 			}
 			else if (model->shader_) // PHONG shading
 			{
 				unsigned color = model->shader_(x, topy-y, basez, basec, basen);
-				this->drawable_(x, topy-y, basez, color, basen);
+				this->drawable_(x, topy-y, basez, basezp, color, basen);
 			}
 			else // GOURAUD shading
 			{
-				this->drawable_(x, topy-y, basez, basec, basen);
+				this->drawable_(x, topy-y, basez, basezp, basec, basen);
 			}
-			lrrr->step(x-1, x, fakey, basez, basec, basen);
+			lrrr->step(x-1, x, fakey, basez, basezp,basec, basen);
 		}
 	}
 }
