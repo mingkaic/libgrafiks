@@ -22,11 +22,14 @@ void shape_render::run (std::vector<const transformation*> trans, const camera_t
 		LIGHTCOLOR lightpt = [this, pm, &trans, &Ktrans]
 		(double x, double y, double z, color_grad c, normal n) -> unsigned
 		{
-			c.r /= 255;
-			c.g /= 255;
-			c.b /= 255;
+			double r = c.r;
+			double g = c.g;
+			double b = c.b;
+			r /= 255;
+			g /= 255;
+			b /= 255;
 			return (unsigned) sources_(normal(x, y, z),
-				n, trans, Ktrans, c, pm->ks_, pm->p_);
+				n, trans, Ktrans, {r, g, b}, pm->ks_, pm->p_);
 		};
 
 		// backface culling

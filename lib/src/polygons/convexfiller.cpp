@@ -7,7 +7,7 @@
 
 namespace glib
 {
-
+double light::super = 0;
 #define TOP std::numeric_limits<double>::max()
 
 convex_filler::convex_filler (DRAW draw) : ipolygoner(draw) {}
@@ -79,12 +79,12 @@ void convex_filler::draw (const poly_model* model) const
 			xarr[y].n = basen;
 			return basex;
 		};
+
+light::super = 0;
 	for (size_t y = 0; y < dy; y++)
 	{
 		point& left = lxs[y];
 		point& right = rxs[y];
-//		double lx = lxs[y].getX();
-//		double rx = rxs[y].getX();
 
 		if (left.getX() > right.getX())
 		{
@@ -93,9 +93,7 @@ void convex_filler::draw (const poly_model* model) const
 			{
 				continue;
 			}
-//			lx =
 			correction(lxs, y);
-//			rx =
 			correction(rxs, y);
 		}
 
@@ -113,20 +111,12 @@ void convex_filler::draw (const poly_model* model) const
 			lrrr = new color_lerper(right, left);
 		}
 
-//		double dx = rxs[y].getX() - lxs[y].getX();
-//		double dz = rxs[y].getZ() - lxs[y].getZ();
-//		color_grad dc = rxs[y].basecolor - lxs[y].basecolor;
-
-//		double mz = dz / dx;
-//		color_grad mc = dc / dx;
-
 		double basez = lxs[y].getZ();
 		color_grad basec = lxs[y].basecolor;
 		normal basen = lxs[y].n;
 		double fakey = y;
 
 		for (double x = left.x; x <= right.x; x++)
-//		for (double x = lx; x <= rx; x++)
 		{
 			if (model->face_color_) // FLAT shading
 			{
@@ -135,15 +125,13 @@ void convex_filler::draw (const poly_model* model) const
 			else if (model->shader_) // PHONG shading
 			{
 				unsigned color = model->shader_(x, topy-y, basez, basec, basen);
-				this->drawable_(x, topy-y, basez, basec, basen);
+				this->drawable_(x, topy-y, basez, color, basen);
 			}
 			else // GOURAUD shading
 			{
 				this->drawable_(x, topy-y, basez, basec, basen);
 			}
 			lrrr->step(x-1, x, fakey, basez, basec, basen);
-//			basez += mz;
-//			basec += mc;
 		}
 	}
 }

@@ -229,7 +229,7 @@ void simp_reader::tokenize (std::istream& s)
 					// look at format (<x>,<y>,<h>)(<x>,<y>,<h>),(<x>,<y>,<h>)
 					lexeme = exhaust_until(s, lhqueue, {'#', '\n'});
 				}
-				else if (this->lookahead(s, lhqueue, "ong"))
+				else if (this->lookahead(s, lhqueue, "hong"))
 				{
 					token = PHONG;
 					lexeme = "phong";
