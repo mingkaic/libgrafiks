@@ -212,7 +212,7 @@ void obj_reader::parse (DRAW drawer)
 				while (it+1 != et)
 				{
 					objects_.push_back(
-                        new poly_model(std::vector<point>{first, *it, *(++it)}));
+						new poly_model(std::vector<point>{first, *it, *(++it)}));
 				}
 			}
 				break;

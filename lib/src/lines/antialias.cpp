@@ -71,10 +71,10 @@ void aalias_liner::draw (const line_model* model) const
 	for (size_t x = 0; x <= dx; ++x) {
 		// at everypoint x, we know the y center point of the line exactly
 		// consider pixel centers above and below y
-        double x0 = (double)x, y0 = (double)std::round(y);
-        double x1 = (double)x, y1 = (double)y0+1;
-        double x2 = (double)x, y2 = (double)y0-1;
-        double x3 = (double)x, y3 = (double)y0;
+		double x0 = (double)x, y0 = (double)std::round(y);
+		double x1 = (double)x, y1 = (double)y0+1;
+		double x2 = (double)x, y2 = (double)y0-1;
+		double x3 = (double)x, y3 = (double)y0;
 		// y_int - y_model
 		double dc0 = y0 - y;
 		double dc1 = dc0 + 1; // top pixel distance from center
@@ -83,11 +83,11 @@ void aalias_liner::draw (const line_model* model) const
 		backward.mul(x1, y1, dummyz);
 		backward.mul(x2, y2, dummyz);
 		this->drawable_(centerx + x0, centery + y0, centerz, centerz,
-            opacity_transform((unsigned)centercolor, intensity(std::abs(dc0) * t)), centern);
+			opacity_transform((unsigned)centercolor, intensity(std::abs(dc0) * t)), centern);
 		this->drawable_(centerx + x1, centery + y1, centerz, centerz,
-            opacity_transform((unsigned)centercolor, intensity(std::abs(dc1) * t)), centern);
+			opacity_transform((unsigned)centercolor, intensity(std::abs(dc1) * t)), centern);
 		this->drawable_(centerx + x2, centery + y2, centerz, centerz,
-            opacity_transform((unsigned)centercolor, intensity(std::abs(dc2) * t)), centern);
+			opacity_transform((unsigned)centercolor, intensity(std::abs(dc2) * t)), centern);
 		double opacity;
 		// look 2 pixels above center if pixel center is below model center
 		// above pixels (that are not pixel centers) are closer to mode centers
@@ -119,7 +119,7 @@ double aalias_liner::intensity (double dlcenter) const
 	// equation of a circle is x^2 + y^2 = r^2 -> y = sqrt(r^2 - x^2)
 	// take integral at x over area of half circle as percentage of overlap
 	// use calibration table built at compile time
-    return ctable.get_area((size_t)d);
+	return ctable.get_area((size_t)d);
 }
 
 }

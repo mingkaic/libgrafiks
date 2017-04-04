@@ -53,7 +53,7 @@ void convex_filler::draw (const poly_model* model) const
 		// we avoid discontinuations between edges
 		// by explicitly entering vertices x coordinate
 		double x = pt.getX();
-        int y = (int)pt.getY();
+		int y = (int)pt.getY();
 
 		size_t yidx = (int) topy - y;
 		if (lxs[yidx].getX() > x) lxs[yidx] = pt;
@@ -69,12 +69,12 @@ void convex_filler::draw (const poly_model* model) const
 			normal_lerper nl(p2, p1);
 
 			double basex = p2.getX();
-            double basey = (double)y-1;
+			double basey = (double)y-1;
 			double basez = p2.getZ();
 			double basezp = p2.zp;
 			color_grad basec = p2.basecolor;
 			normal basen = p2.n;
-            nl.step((double)y, basex, basey, basez, basezp, basec, basen, lerper::ARG::Y);
+			nl.step((double)y, basex, basey, basez, basezp, basec, basen, lerper::ARG::Y);
 
 			xarr[y] = {basex, (double) y, basez};
 			xarr[y].basecolor = (unsigned) basec;
@@ -82,7 +82,7 @@ void convex_filler::draw (const poly_model* model) const
 			return basex;
 		};
 
-    for (int y = 0; y < dy; y++)
+	for (int y = 0; y < dy; y++)
 	{
 		point& left = lxs[y];
 		point& right = rxs[y];
@@ -116,26 +116,26 @@ void convex_filler::draw (const poly_model* model) const
 		double basezp = lxs[y].zp;
 		color_grad basec = lxs[y].basecolor;
 		normal basen = lxs[y].n;
-        double fakey = (double)y;
+		double fakey = (double)y;
 
 		for (double x = left.x; x <= right.x; x++)
 		{
 			if (model->face_color_) // FLAT shading
 			{
-                this->drawable_((int)x, (int)(topy-y), basez, basezp, (unsigned) *model->face_color_, basen);
+				this->drawable_((int)x, (int)(topy-y), basez, basezp, (unsigned) *model->face_color_, basen);
 			}
 			else if (model->shader_) // PHONG shading
 			{
 				unsigned color = model->shader_(x, topy-y, basez, basec, basen);
-                this->drawable_((int)x, (int)(topy-y), basez, basezp, color, basen);
+				this->drawable_((int)x, (int)(topy-y), basez, basezp, color, basen);
 			}
 			else // GOURAUD shading
 			{
-                this->drawable_((int)x, (int)(topy-y), basez, basezp, basec, basen);
+				this->drawable_((int)x, (int)(topy-y), basez, basezp, basec, basen);
 			}
 			lrrr->step(x-1, x, fakey, basez, basezp,basec, basen);
 		}
-        delete lrrr;
+		delete lrrr;
 	}
 }
 

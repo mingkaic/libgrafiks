@@ -24,8 +24,8 @@ public:
 		width_(width), height_(height),
 		tester(width, height, 1)
 	{
-        zbuffer = new double[width * height];
-        srand((unsigned int)time(NULL));
+		zbuffer = new double[width * height];
+		srand((unsigned int)time(NULL));
 	}
 
 	~a2test (void)
@@ -37,7 +37,7 @@ public:
 	{
 		double opacity = 0.61;
 		DRAW translucent =
-        [this, opacity, drawable](int x, int y, double, double, unsigned c, glib::normal&)
+		[this, opacity, drawable](int x, int y, double, double, unsigned c, glib::normal&)
 		{
 			unsigned int oldColor = drawable->getPixel(x, y);
 			unsigned int newColor = glib::opacity_transform(c, opacity) + glib::opacity_transform(oldColor, (1-opacity));
@@ -45,7 +45,7 @@ public:
 		};
 
 		DRAW zbuffered =
-        [this, drawable](int x, int y, double z, double, unsigned c, glib::normal&)
+		[this, drawable](int x, int y, double z, double, unsigned c, glib::normal&)
 		{
 			size_t idx = y * width_ + x;
 			if (z < zbuffer[idx])
@@ -59,7 +59,7 @@ public:
 		size_t pheight = panels_[0].get_height();
 
 		DRAW zbufferdepthred =
-        [this, drawable, pwidth, pheight](int x, int y, double z, double, unsigned, glib::normal&)
+		[this, drawable, pwidth, pheight](int x, int y, double z, double, unsigned, glib::normal&)
 		{
 			size_t idx = y * width_ + x;
 			if (x > PADDING && y >=PADDING &&
@@ -76,7 +76,7 @@ public:
 		};
 
 		DRAW zbufferdepthgreen =
-        [this, drawable, pwidth, pheight](int x, int y, double z, double, unsigned, glib::normal&)
+		[this, drawable, pwidth, pheight](int x, int y, double z, double, unsigned, glib::normal&)
 		{
 			size_t idx = y * width_ + x;
 			if (x > PADDING && y >=PADDING &&
@@ -161,7 +161,7 @@ public:
 	}
 
 private:
-    double* zbuffer;
+	double* zbuffer;
 	size_t width_;
 	size_t height_;
 };

@@ -80,11 +80,11 @@ struct light
  		}
 
  		// clip the values to prevent overflow
-        r = std::min(255.0, 255*r);
+		r = std::min(255.0, 255*r);
 		g = std::min(255.0, 255*g);
 		b = std::min(255.0, 255*b);
 
-        return color((uint8_t)r, (uint8_t)g, (uint8_t)b);
+		return color((uint8_t)r, (uint8_t)g, (uint8_t)b);
 	}
 
 	color_grad ambient_ = 0;

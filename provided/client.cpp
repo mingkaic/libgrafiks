@@ -35,7 +35,7 @@ void Client::nextPage() {
 	[this](const panel& p)
 	{
 		std::pair<glib::point, glib::point> pts = p.get_pts();
-        draw_rect((int)pts.first.getX(), (int)pts.first.getY(), (int)pts.second.getX(), (int)pts.second.getY(), PANEL_COLOR);
+		draw_rect((int)pts.first.getX(), (int)pts.first.getY(), (int)pts.second.getX(), (int)pts.second.getY(), PANEL_COLOR);
 	});
 
 	pageNumber++;

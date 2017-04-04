@@ -61,7 +61,7 @@ public:
 		z = zz;
 	}
 
-    void rmul (double& x, double& y, double& z, double&) const
+	void rmul (double& x, double& y, double& z, double&) const
 	{
 		x *= std::abs(z) / projectz;
 		y *= std::abs(z) / projectz;

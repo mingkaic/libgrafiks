@@ -36,7 +36,7 @@ public:
 
 		double opacity = 0.61;
 
-        DRAW draw = [drawable](int x, int y, double, double, unsigned int color, glib::normal&)
+		DRAW draw = [drawable](int x, int y, double, double, unsigned int color, glib::normal&)
 		{
 			unsigned int oldColor = drawable->getPixel(x, y);
 			// take shapes of highest intensity on top
@@ -50,7 +50,7 @@ public:
 
 		glib::convex_filler pol1(draw);
 		glib::convex_filler pol2(
-        [this, opacity, drawable](int x, int y, double, double, unsigned int color, glib::normal&)
+		[this, opacity, drawable](int x, int y, double, double, unsigned int color, glib::normal&)
 		{
 			unsigned int oldColor = drawable->getPixel(x, y);
 			unsigned int newColor = glib::opacity_transform(color, opacity) + glib::opacity_transform(oldColor, (1-opacity));

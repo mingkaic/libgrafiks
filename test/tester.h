@@ -25,7 +25,7 @@ public:
 		size_t pheight = (height - (nrow + 1) * PADDING) / nrow;
 		for (size_t x = PADDING; x < width-PADDING; x += pwidth + PADDING) {
 			for (size_t y = PADDING; y < height-PADDING; y += pheight + PADDING) {
-                panels_.push_back(panel(glib::point((double)x,(double)y), glib::point((double)x+pwidth,(double)y+pheight)));
+				panels_.push_back(panel(glib::point((double)x,(double)y), glib::point((double)x+pwidth,(double)y+pheight)));
 			}
 		}
 	}
@@ -39,7 +39,7 @@ protected:
 
 private:
 	std::pair<size_t,size_t> greatfactors (size_t n) {
-        size_t r = (size_t)std::sqrt(n);
+		size_t r = (size_t)std::sqrt(n);
 		size_t i = r;
 		while (i > 0 && n % i != 0) {
 			i--;

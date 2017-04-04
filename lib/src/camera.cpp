@@ -13,7 +13,7 @@ camera::camera (double end, std::pair<double,double> xyscale, point center)
 {
 	double scaler = std::min(xyscale.first, xyscale.second);
 	to_window_ = translate(center).matmul(
-        scale(point(scaler /DEFAULT_SCREEN_DIM,
+		scale(point(scaler /DEFAULT_SCREEN_DIM,
 			-scaler / DEFAULT_SCREEN_DIM, 1)));
 	planes_ =
 	{

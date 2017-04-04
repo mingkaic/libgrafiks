@@ -422,7 +422,7 @@ void simp_reader::parse (DRAW drawer)
 		SIMP_TOK token = (SIMP_TOK) lt.second;
 		lextok_.pop();
 		switch (token)
-	    {
+		{
 			case PUSH_STACK:
 				pushcount++;
 				inst = new INSTRUCTION(pushcount);
@@ -476,13 +476,13 @@ void simp_reader::parse (DRAW drawer)
 				{
 					throw std::exception(); // todo: better exception: invalid syntax
 				}
-                std::vector<point> respts = {
-                    to_point(pts[0], " ", filter, surface_),
-                    to_point(pts[1], " ", filter, surface_),
-                    to_point(pts[2], " ", filter, surface_)
-                };
-                poly_model* poly = new poly_model(respts);
-                poly->lerp_norm();
+				std::vector<point> respts = {
+					to_point(pts[0], " ", filter, surface_),
+					to_point(pts[1], " ", filter, surface_),
+					to_point(pts[2], " ", filter, surface_)
+				};
+				poly_model* poly = new poly_model(respts);
+				poly->lerp_norm();
 				poly->ks_ = ks_;
 				poly->p_ = p_;
 				inst = new RENDER(poly, goner_, pushcount);
@@ -543,29 +543,29 @@ void simp_reader::parse (DRAW drawer)
 			{
 				std::vector<poly_model*> objs;
 				std::string f = this->trim(lexeme, filter);
-                f += ".obj";
-                obj_reader reader(directory_ + "/" + f);
-                reader.basecolor_ = surface_;
-                reader.parse([](int,int,double,double,unsigned,normal&) {});
-                reader.get_objects(objs);
-                if (!objs.empty())
-                {
-                    auto it = objs.begin();
+				f += ".obj";
+				obj_reader reader(directory_ + "/" + f);
+				reader.basecolor_ = surface_;
+				reader.parse([](int,int,double,double,unsigned,normal&) {});
+				reader.get_objects(objs);
+				if (!objs.empty())
+				{
+					auto it = objs.begin();
 					poly_model* poly = *it;
 					poly->lerp_norm();
 					poly->ks_ = ks_;
 					poly->p_ = p_;
-                    inst = new RENDER(poly, goner_, pushcount);
-                    it++;
-                    for (auto et = objs.end(); it != et; it++)
-                    {
-                    	poly = *it;
+					inst = new RENDER(poly, goner_, pushcount);
+					it++;
+					for (auto et = objs.end(); it != et; it++)
+					{
+						poly = *it;
 						poly->lerp_norm();
 						poly->ks_ = ks_;
 						poly->p_ = p_;
-                        instructions_.push_back(new RENDER(poly, goner_, pushcount));
-                    }
-                }
+						instructions_.push_back(new RENDER(poly, goner_, pushcount));
+					}
+				}
 				surface_ = reader.basecolor_;
 			}
 				break;
