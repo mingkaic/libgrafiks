@@ -30,7 +30,9 @@ For mac installations:
 
 Run generated make file
 
+> cmake --build
 
+Alternatively qmake is supported too (although the executable is set as qtqt)
 
 3. Run binary MainPage
 
@@ -38,8 +40,10 @@ Run generated make file
 
 There is the option to specify the test directory by
 
-> ./MainPage -testdir=/relative/path/to/tests
+> ./MainPage /relative/path/to/tests
 
 By default the test path is the executable's directory
 
-For assignment 2 pages 4, and 5 copy contents of /test/simp/ to the desired test directory or working directory
+For assignment 2 pages 4, and 5 copy contents of /test/simp/ to the desired test directory or working directory. or specify a directory path as the argument
+
+For assignment 3 and 4 supply a simp file path relative to the executable. The output will be blank if no simp file is supplied
