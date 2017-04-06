@@ -33,7 +33,7 @@ bool ifreader::lookahead (std::istream& s, std::list<char>& q, std::string match
 	}
 	if (0 == lexeme.compare(match))
 	{
-		q.erase(q.begin(), spaceit);
+		q.erase(q.begin(), it);
 		return true;
 	}
 	if (jmp) {
