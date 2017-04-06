@@ -23,14 +23,6 @@ struct poly_model : public shape_model
 		vertices_.push_back(pt);
 	}
 
-	void trans_points (std::function<void(point&)> ctrans)
-	{
-		for (point& v : vertices_)
-		{
-			ctrans(v);
-		}
-	}
-
 	void lerp_norm (void)
 	{
 		if (vertices_.size() < 3) return;

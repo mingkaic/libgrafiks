@@ -25,6 +25,14 @@ public:
 
 	point get_v (size_t idx) const;
 
+	void trans_points (std::function<void(point&)> ctrans)
+	{
+		for (point& v : vertices_)
+		{
+			ctrans(v);
+		}
+	}
+
 	void transform (const transformation& trans);
 
 	size_t n_vertices (void) const;

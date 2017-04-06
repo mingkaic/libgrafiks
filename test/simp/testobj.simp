@@ -15,10 +15,10 @@ surface (1, 1, 1)
     rotate Y 30
     camera -1.2 -1.2 1.2 1.2 0.1 200
 }
-phong
+# phong
 # gouraud
-# flat
-# wired
+flat
+# wire
 translate 0 0 80
 # rotate X 45
 # rotate Y 45

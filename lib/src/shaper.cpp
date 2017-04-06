@@ -37,12 +37,6 @@ void shape_render::run (std::vector<const transformation*> trans, const camera_t
 		{
 			return;
 		}
-		// prime vertices with z' = 1/csz
-		pm->trans_points(
-		[](point& c)
-		{
-			c.zp = 1/c.z;
-		});
 
 		color_grad total(0);
 		if (FLAT_SHAD == shad_ || GOURAUD_SHAD == shad_)
@@ -64,6 +58,12 @@ void shape_render::run (std::vector<const transformation*> trans, const camera_t
 			pm->shader_ = lightpt;
 		}
 	}
+	// prime vertices with z' = 1/csz
+	model_->trans_points(
+	[](point& c)
+	{
+		c.zp = 1/c.z;
+	});
 	shaper_->draw(model_);
 }
 
